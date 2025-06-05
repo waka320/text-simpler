@@ -1,4 +1,3 @@
-// CSSスタイルを追加
 const style = document.createElement('style');
 style.textContent = `
 .simplify-tooltip {
