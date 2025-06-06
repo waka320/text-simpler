@@ -15,12 +15,41 @@
     </div>
   </div>
   
-  <div id="main-content">
-    <div class="form-group">
-      <label for="api-key">Gemini API キー</label>
-      <input type="password" id="api-key" placeholder="APIキーを入力">
+  <div id="no-text-selected" style="display: none;">
+    <div class="notice">
+      <p>テキストが選択されていません。</p>
+      <p>ページ上のテキストを選択してから拡張機能を開いてください。</p>
+    </div>
+  </div>
+  
+  <div id="simplify-content" style="display: none;">
+    <div class="selected-text-container">
+      <p class="label">選択中のテキスト:</p>
+      <div id="selected-text" class="selected-text"></div>
     </div>
     
+    <div class="difficulty-selector">
+      <p class="label">難易度レベルを選択:</p>
+      <div class="level-buttons">
+        <button class="level-button" data-level="小学生">小学生</button>
+        <button class="level-button" data-level="中学生">中学生</button>
+        <button class="level-button" data-level="高校生">高校生</button>
+        <button class="level-button" data-level="大学生">大学生</button>
+      </div>
+    </div>
+    
+    <div id="simplified-result-container" style="display: none;">
+      <p class="label">簡略化された結果:</p>
+      <div id="simplified-result" class="simplified-result"></div>
+    </div>
+    
+    <div id="loading" class="loading" style="display: none;">
+      <div class="spinner"></div>
+      <p>処理中...</p>
+    </div>
+  </div>
+  
+  <div id="config-panel">
     <div class="form-group">
       <label for="model-select">モデル選択</label>
       <select id="model-select">
@@ -29,25 +58,8 @@
       </select>
     </div>
     
-    <div class="form-group">
-      <label for="default-level">デフォルト簡略化レベル</label>
-      <select id="default-level">
-        <option value="小学生">小学生レベル</option>
-        <option value="中学生">中学生レベル</option>
-        <option value="高校生">高校生レベル</option>
-        <option value="大学生">大学生レベル</option>
-      </select>
-    </div>
-    
     <div class="actions">
-      <button id="save" class="primary-button">保存</button>
-      <button id="open-options-link" class="secondary-button">詳細設定</button>
-    </div>
-    
-    <div class="status" id="status"></div>
-    
-    <div class="usage-tip">
-      <p>使い方: テキストを選択して右クリックか、選択後に表示されるボタンをクリック</p>
+      <button id="open-settings" class="secondary-button">詳細設定</button>
     </div>
   </div>
   
