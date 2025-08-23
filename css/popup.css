@@ -182,10 +182,12 @@ body {
 .action-section {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 .transform-btn,
-.cancel-btn {
+.cancel-btn,
+.undo-all-btn {
     flex: 1;
     padding: 10px 16px;
     border: none;
@@ -194,6 +196,7 @@ body {
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
+    min-width: 100px;
 }
 
 .transform-btn {
@@ -219,25 +222,56 @@ body {
     background: #5a6268;
 }
 
+.undo-all-btn {
+    background: #ffc107;
+    color: #212529;
+    font-size: 12px;
+    flex-basis: 100%;
+    margin-top: 4px;
+}
+
+.undo-all-btn:hover {
+    background: #e0a800;
+}
+
 /* 結果表示 */
 .result-section {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
+    background: #e8f5e8;
+    border: 1px solid #c3e6c3;
     border-radius: 6px;
     padding: 12px;
 }
 
-.result-text {
+.result-message {
+    color: #2d5a2d;
+    font-weight: 500;
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+
+.result-info {
     background: white;
-    border: 1px solid #ddd;
+    border: 1px solid #c3e6c3;
     border-radius: 4px;
     padding: 8px;
-    font-size: 12px;
+    font-size: 11px;
     line-height: 1.4;
-    max-height: 150px;
-    overflow-y: auto;
     margin-bottom: 8px;
-    white-space: pre-wrap;
+    color: #495057;
+}
+
+.result-info p {
+    margin: 0 0 4px 0;
+    font-weight: 500;
+}
+
+.result-info ul {
+    margin: 0;
+    padding-left: 16px;
+}
+
+.result-info li {
+    margin-bottom: 2px;
 }
 
 .result-actions {

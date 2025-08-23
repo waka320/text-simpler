@@ -25,7 +25,7 @@ const GeminiAPI = {
       throw new Error('変換対象のテキストが空です');
     }
 
-    const endpoint = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent';
+    const endpoint = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent';
 
     try {
       const prompt = this._generatePrompt(text, mode, level);

@@ -79,16 +79,29 @@
                 <button id="cancelBtn" class="cancel-btn" style="display: none;">
                     キャンセル
                 </button>
+                <button id="undoAllBtn" class="undo-all-btn" style="display: none;">
+                    全て元に戻す
+                </button>
             </section>
 
             <!-- 結果表示 -->
             <section class="result-section" id="resultSection" style="display: none;">
-                <h3>変換結果</h3>
+                <h3>変換完了</h3>
                 <div class="result-content">
-                    <div class="result-text" id="resultText"></div>
+                    <div class="result-message" id="resultMessage">
+                        選択したテキストがページ上で直接変換されました。
+                    </div>
+                    <div class="result-info">
+                        <p>💡 <strong>使い方:</strong></p>
+                        <ul>
+                            <li>変換された部分は薄いマーカーで表示されます</li>
+                            <li>マーカー部分をダブルクリックで元に戻せます</li>
+                            <li>「全て元に戻す」で一括で元に戻せます</li>
+                        </ul>
+                    </div>
                     <div class="result-actions">
-                        <button id="copyBtn" class="copy-btn">コピー</button>
-                        <button id="clearBtn" class="clear-btn">クリア</button>
+                        <button id="copyBtn" class="copy-btn">結果をコピー</button>
+                        <button id="clearBtn" class="clear-btn">閉じる</button>
                     </div>
                 </div>
             </section>

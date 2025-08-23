@@ -17,11 +17,12 @@ const elements = {
     // アクション
     transformBtn: document.getElementById('transformBtn'),
     cancelBtn: document.getElementById('cancelBtn'),
+    undoAllBtn: document.getElementById('undoAllBtn'),
     settingsBtn: document.getElementById('settingsBtn'),
 
     // 結果表示
     resultSection: document.getElementById('resultSection'),
-    resultText: document.getElementById('resultText'),
+    resultMessage: document.getElementById('resultMessage'),
     copyBtn: document.getElementById('copyBtn'),
     clearBtn: document.getElementById('clearBtn'),
 
@@ -45,7 +46,8 @@ let currentState = {
     targetType: 'selection',
     selectedText: '',
     isProcessing: false,
-    lastResult: null
+    lastResult: null,
+    lastElementId: null
 };
 
 /**
@@ -94,6 +96,7 @@ function setupEventListeners() {
     // アクションボタン
     elements.transformBtn.addEventListener('click', handleTransform);
     elements.cancelBtn.addEventListener('click', handleCancel);
+    elements.undoAllBtn.addEventListener('click', handleUndoAll);
     elements.settingsBtn.addEventListener('click', handleSettings);
 
     // 結果アクション
@@ -267,8 +270,18 @@ async function handleTransform() {
 
         if (response.success) {
             currentState.lastResult = response.result;
-            showResult(response.result, response.originalText);
-            elements.statusText.textContent = '変換完了';
+            currentState.lastElementId = response.elementId;
+
+            if (response.applied) {
+                showResult(response.result, response.originalText, true);
+                elements.statusText.textContent = '変換完了 - ページに適用済み';
+
+                // 「全て元に戻す」ボタンを表示
+                elements.undoAllBtn.style.display = 'inline-block';
+            } else {
+                showResult(response.result, response.originalText, false);
+                elements.statusText.textContent = '変換完了';
+            }
         } else {
             throw new Error(response.error || '変換に失敗しました');
         }
@@ -342,8 +355,39 @@ async function handleCopy() {
  */
 function handleClear() {
     currentState.lastResult = null;
+    currentState.lastElementId = null;
     hideResult();
     elements.statusText.textContent = '準備完了';
+}
+
+/**
+ * 全て元に戻すハンドラ
+ */
+async function handleUndoAll() {
+    try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+        const response = await chrome.tabs.sendMessage(tab.id, {
+            action: 'undoTransform'
+        });
+
+        if (response && response.success) {
+            elements.statusText.textContent = `${response.undoCount || 0}個の変換を元に戻しました`;
+            elements.undoAllBtn.style.display = 'none';
+
+            // 一時的にボタンテキストを変更
+            const originalText = elements.undoAllBtn.textContent;
+            elements.undoAllBtn.textContent = '元に戻しました!';
+            setTimeout(() => {
+                elements.undoAllBtn.textContent = originalText;
+            }, 1000);
+        } else {
+            elements.statusText.textContent = '元に戻す操作に失敗しました';
+        }
+    } catch (error) {
+        console.error('Undo all error:', error);
+        elements.statusText.textContent = '元に戻す操作でエラーが発生しました';
+    }
 }
 
 /**
@@ -381,26 +425,15 @@ function hideLoading() {
 /**
  * 結果表示
  */
-function showResult(result, originalText) {
-    let displayText = '';
-
-    if (typeof result === 'string') {
-        displayText = result;
-    } else if (Array.isArray(result)) {
-        // チャンク結果の場合
-        const successfulChunks = result.filter(chunk => chunk.success);
-        const failedChunks = result.filter(chunk => !chunk.success);
-
-        displayText = successfulChunks
-            .map(chunk => chunk.transformedText)
-            .join('\n\n');
-
-        if (failedChunks.length > 0) {
-            displayText += `\n\n[注意: ${failedChunks.length}個のチャンクで変換に失敗しました]`;
-        }
+function showResult(result, originalText, applied = false) {
+    if (applied) {
+        // ページに適用された場合
+        elements.resultMessage.textContent = '選択したテキストがページ上で直接変換されました。';
+    } else {
+        // 適用に失敗した場合
+        elements.resultMessage.textContent = '変換は完了しましたが、ページへの適用に失敗しました。';
     }
 
-    elements.resultText.textContent = displayText;
     elements.resultSection.style.display = 'block';
 }
 

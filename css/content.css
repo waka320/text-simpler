@@ -1,0 +1,152 @@
+/**
+ * Text-Simpler Content Styles
+ * ページ内の変換マーカー用スタイル
+ */
+
+/* 基本マーカースタイル */
+.text-simpler-marker {
+    position: relative;
+    cursor: pointer;
+    border-radius: 2px;
+    padding: 1px 2px;
+    margin: 0 1px;
+    transition: all 0.2s ease;
+    display: inline;
+    line-height: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+}
+
+/* ホバー時の効果 */
+.text-simpler-marker:hover {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+/* モード別の色分け */
+.text-simpler-simplify {
+    background-color: rgba(102, 126, 234, 0.15);
+    border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+.text-simpler-simplify:hover {
+    background-color: rgba(102, 126, 234, 0.25);
+    border-bottom-color: rgba(102, 126, 234, 0.5);
+}
+
+.text-simpler-concretize {
+    background-color: rgba(40, 167, 69, 0.15);
+    border-bottom: 2px solid rgba(40, 167, 69, 0.3);
+}
+
+.text-simpler-concretize:hover {
+    background-color: rgba(40, 167, 69, 0.25);
+    border-bottom-color: rgba(40, 167, 69, 0.5);
+}
+
+.text-simpler-abstract {
+    background-color: rgba(255, 193, 7, 0.15);
+    border-bottom: 2px solid rgba(255, 193, 7, 0.3);
+}
+
+.text-simpler-abstract:hover {
+    background-color: rgba(255, 193, 7, 0.25);
+    border-bottom-color: rgba(255, 193, 7, 0.5);
+}
+
+.text-simpler-grade {
+    background-color: rgba(220, 53, 69, 0.15);
+    border-bottom: 2px solid rgba(220, 53, 69, 0.3);
+}
+
+.text-simpler-grade:hover {
+    background-color: rgba(220, 53, 69, 0.25);
+    border-bottom-color: rgba(220, 53, 69, 0.5);
+}
+
+/* アクティブ状態（クリック時） */
+.text-simpler-marker:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 選択時のスタイル */
+.text-simpler-marker::selection {
+    background-color: rgba(102, 126, 234, 0.3);
+}
+
+.text-simpler-marker::-moz-selection {
+    background-color: rgba(102, 126, 234, 0.3);
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+    .text-simpler-simplify {
+        background-color: rgba(102, 126, 234, 0.2);
+        border-bottom-color: rgba(102, 126, 234, 0.4);
+    }
+
+    .text-simpler-concretize {
+        background-color: rgba(40, 167, 69, 0.2);
+        border-bottom-color: rgba(40, 167, 69, 0.4);
+    }
+
+    .text-simpler-abstract {
+        background-color: rgba(255, 193, 7, 0.2);
+        border-bottom-color: rgba(255, 193, 7, 0.4);
+    }
+
+    .text-simpler-grade {
+        background-color: rgba(220, 53, 69, 0.2);
+        border-bottom-color: rgba(220, 53, 69, 0.4);
+    }
+}
+
+/* 印刷時は背景色を削除 */
+@media print {
+    .text-simpler-marker {
+        background-color: transparent !important;
+        border-bottom: 1px solid #ccc !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+}
+
+/* アクセシビリティ: 動きを減らす設定の場合 */
+@media (prefers-reduced-motion: reduce) {
+    .text-simpler-marker {
+        transition: none;
+    }
+
+    .text-simpler-marker:hover {
+        transform: none;
+    }
+}
+
+/* 高コントラスト対応 */
+@media (prefers-contrast: high) {
+    .text-simpler-marker {
+        border-bottom-width: 3px;
+    }
+
+    .text-simpler-simplify {
+        background-color: rgba(102, 126, 234, 0.3);
+        border-bottom-color: rgba(102, 126, 234, 0.8);
+    }
+
+    .text-simpler-concretize {
+        background-color: rgba(40, 167, 69, 0.3);
+        border-bottom-color: rgba(40, 167, 69, 0.8);
+    }
+
+    .text-simpler-abstract {
+        background-color: rgba(255, 193, 7, 0.3);
+        border-bottom-color: rgba(255, 193, 7, 0.8);
+    }
+
+    .text-simpler-grade {
+        background-color: rgba(220, 53, 69, 0.3);
+        border-bottom-color: rgba(220, 53, 69, 0.8);
+    }
+}
