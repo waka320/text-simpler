@@ -1,0 +1,380 @@
+/**
+ * Text-Simpler Options Styles (MVP版)
+ */
+
+/* リセットとベース */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+    background: #f8f9fa;
+}
+
+/* オプションコンテナ */
+.options-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* ヘッダー */
+.options-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.options-header h1 {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.version-info {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* メインコンテンツ */
+.options-main {
+    padding: 32px;
+}
+
+/* 設定セクション */
+.settings-section {
+    margin-bottom: 40px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.settings-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.settings-section h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 設定グループ */
+.setting-group {
+    margin-bottom: 24px;
+}
+
+.setting-group:last-child {
+    margin-bottom: 0;
+}
+
+.setting-label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #495057;
+}
+
+.required {
+    color: #dc3545;
+    margin-left: 4px;
+}
+
+.current-value {
+    font-weight: normal;
+    color: #667eea;
+    margin-left: 8px;
+}
+
+/* 入力フィールド */
+.setting-input,
+.setting-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.setting-input:focus,
+.setting-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* APIキー入力グループ */
+.api-key-input-group {
+    display: flex;
+    gap: 8px;
+}
+
+.api-key-input {
+    flex: 1;
+}
+
+.toggle-visibility-btn {
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    background: #f8f9fa;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.toggle-visibility-btn:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+/* レンジ入力 */
+.setting-range {
+    width: 100%;
+    margin: 8px 0;
+}
+
+.range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 4px;
+}
+
+/* 設定説明 */
+.setting-description {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #6c757d;
+    line-height: 1.4;
+}
+
+.setting-description a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.setting-description a:hover {
+    text-decoration: underline;
+}
+
+/* APIキーアクション */
+.api-key-actions {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.validate-btn {
+    padding: 8px 16px;
+    border: 1px solid #667eea;
+    background: white;
+    color: #667eea;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.validate-btn:hover:not(:disabled) {
+    background: #667eea;
+    color: white;
+}
+
+.validate-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.validation-status {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.validation-status.success {
+    color: #28a745;
+}
+
+.validation-status.error {
+    color: #dc3545;
+}
+
+.validation-status.loading {
+    color: #667eea;
+}
+
+/* 使用方法ガイド */
+.usage-guide ol {
+    padding-left: 20px;
+}
+
+.usage-guide li {
+    margin-bottom: 8px;
+    color: #495057;
+}
+
+/* 注意事項 */
+.notice-content ul {
+    padding-left: 20px;
+}
+
+.notice-content li {
+    margin-bottom: 8px;
+    color: #495057;
+}
+
+/* フッター */
+.options-footer {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    border-top: 1px solid #e9ecef;
+    padding: 20px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.save-section {
+    display: flex;
+    gap: 12px;
+}
+
+.save-btn,
+.reset-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.save-btn {
+    background: #667eea;
+    color: white;
+}
+
+.save-btn:hover:not(:disabled) {
+    background: #5a6fd8;
+}
+
+.save-btn:disabled {
+    background: #adb5bd;
+    cursor: not-allowed;
+}
+
+.reset-btn {
+    background: #6c757d;
+    color: white;
+}
+
+.reset-btn:hover {
+    background: #5a6268;
+}
+
+.save-status {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.save-status.success {
+    color: #28a745;
+}
+
+.save-status.error {
+    color: #dc3545;
+}
+
+.save-status.info {
+    color: #17a2b8;
+}
+
+/* ローディングオーバーレイ */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.loading-content {
+    background: white;
+    padding: 32px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 16px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-message {
+    font-size: 14px;
+    color: #495057;
+}
+
+/* レスポンシブ */
+@media (max-width: 768px) {
+    .options-container {
+        margin: 0;
+    }
+
+    .options-header,
+    .options-main,
+    .options-footer {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .options-footer {
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+    }
+
+    .save-section {
+        justify-content: center;
+    }
+}

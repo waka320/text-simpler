@@ -1,0 +1,391 @@
+/**
+ * Text-Simpler Popup Styles (MVP版)
+ */
+
+/* リセットとベース */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #333;
+    background: #fff;
+}
+
+/* ポップアップコンテナ */
+.popup-container {
+    width: 380px;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+/* ヘッダー */
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.popup-header h1 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.settings-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.settings-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* メインコンテンツ */
+.popup-main {
+    padding: 16px;
+}
+
+/* セクション */
+.popup-main section {
+    margin-bottom: 20px;
+}
+
+.popup-main section:last-child {
+    margin-bottom: 0;
+}
+
+.popup-main h2,
+.popup-main h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+/* モード選択 */
+.mode-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.mode-tab {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background: #f8f9fa;
+    color: #666;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.mode-tab:hover {
+    background: #e9ecef;
+    border-color: #ccc;
+}
+
+.mode-tab.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+/* 学年レベル選択 */
+.grade-section {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.grade-options {
+    display: flex;
+    gap: 12px;
+}
+
+.grade-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.grade-option input[type="radio"] {
+    margin-right: 4px;
+}
+
+/* 対象選択 */
+.target-options {
+    display: flex;
+    gap: 16px;
+}
+
+.target-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.target-option input[type="radio"] {
+    margin-right: 4px;
+}
+
+/* 選択テキストプレビュー */
+.selected-text-preview {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 12px;
+    line-height: 1.3;
+    max-height: 80px;
+    overflow-y: auto;
+    color: #666;
+}
+
+.selected-text-preview.has-text {
+    background: #e8f5e8;
+    border-color: #c3e6c3;
+    color: #2d5a2d;
+}
+
+.selected-text-preview.page-mode {
+    background: #e8f0ff;
+    border-color: #b3d1ff;
+    color: #1a4480;
+    font-style: italic;
+}
+
+.selected-text-preview.no-text {
+    color: #999;
+    font-style: italic;
+}
+
+/* アクションボタン */
+.action-section {
+    display: flex;
+    gap: 8px;
+}
+
+.transform-btn,
+.cancel-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.transform-btn {
+    background: #667eea;
+    color: white;
+}
+
+.transform-btn:hover:not(:disabled) {
+    background: #5a6fd8;
+}
+
+.transform-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.cancel-btn {
+    background: #6c757d;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background: #5a6268;
+}
+
+/* 結果表示 */
+.result-section {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 12px;
+}
+
+.result-text {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 12px;
+    line-height: 1.4;
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 8px;
+    white-space: pre-wrap;
+}
+
+.result-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.copy-btn,
+.clear-btn {
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    background: white;
+    color: #666;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.copy-btn:hover {
+    background: #e8f5e8;
+    border-color: #c3e6c3;
+    color: #2d5a2d;
+}
+
+.clear-btn:hover {
+    background: #ffe8e8;
+    border-color: #ffb3b3;
+    color: #802d2d;
+}
+
+/* エラー表示 */
+.error-section {
+    background: #ffe8e8;
+    border: 1px solid #ffb3b3;
+    border-radius: 6px;
+    padding: 12px;
+}
+
+.error-message {
+    color: #802d2d;
+    font-size: 12px;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.error-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.retry-btn,
+.close-error-btn {
+    padding: 6px 12px;
+    border: 1px solid #ff6b6b;
+    background: white;
+    color: #ff6b6b;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.retry-btn:hover {
+    background: #ff6b6b;
+    color: white;
+}
+
+.close-error-btn:hover {
+    background: #f8f9fa;
+}
+
+/* ローディング */
+.loading-section {
+    text-align: center;
+    padding: 20px;
+}
+
+.loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-message {
+    font-size: 12px;
+    color: #666;
+}
+
+/* フッター */
+.popup-footer {
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+.status-info {
+    text-align: center;
+}
+
+#statusText {
+    font-size: 11px;
+    color: #666;
+}
+
+/* スクロールバー */
+.popup-container::-webkit-scrollbar,
+.selected-text-preview::-webkit-scrollbar,
+.result-text::-webkit-scrollbar {
+    width: 6px;
+}
+
+.popup-container::-webkit-scrollbar-track,
+.selected-text-preview::-webkit-scrollbar-track,
+.result-text::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.popup-container::-webkit-scrollbar-thumb,
+.selected-text-preview::-webkit-scrollbar-thumb,
+.result-text::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.popup-container::-webkit-scrollbar-thumb:hover,
+.selected-text-preview::-webkit-scrollbar-thumb:hover,
+.result-text::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}

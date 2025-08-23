@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text-Simpler</title>
+    <link rel="stylesheet" href="../css/popup.css">
+</head>
+
+<body>
+    <div class="popup-container">
+        <!-- ヘッダー -->
+        <header class="popup-header">
+            <h1>Text-Simpler</h1>
+            <button id="settingsBtn" class="settings-btn" title="設定">⚙️</button>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <main class="popup-main">
+            <!-- モード選択 -->
+            <section class="mode-section">
+                <h2>変換モード</h2>
+                <div class="mode-tabs">
+                    <button class="mode-tab active" data-mode="simplify">わかりやすく</button>
+                    <button class="mode-tab" data-mode="concretize">具体化</button>
+                    <button class="mode-tab" data-mode="abstract">抽象化</button>
+                    <button class="mode-tab" data-mode="grade">学年レベル</button>
+                </div>
+            </section>
+
+            <!-- 学年レベル選択（学年モード時のみ表示） -->
+            <section class="grade-section" id="gradeSection" style="display: none;">
+                <h3>学年レベル</h3>
+                <div class="grade-options">
+                    <label class="grade-option">
+                        <input type="radio" name="gradeLevel" value="elementary">
+                        <span>小学生</span>
+                    </label>
+                    <label class="grade-option">
+                        <input type="radio" name="gradeLevel" value="junior" checked>
+                        <span>中学生</span>
+                    </label>
+                    <label class="grade-option">
+                        <input type="radio" name="gradeLevel" value="senior">
+                        <span>高校生</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- 対象テキスト選択 -->
+            <section class="target-section">
+                <h3>変換対象</h3>
+                <div class="target-options">
+                    <label class="target-option">
+                        <input type="radio" name="targetType" value="selection" checked>
+                        <span>選択テキスト</span>
+                    </label>
+                    <label class="target-option">
+                        <input type="radio" name="targetType" value="page">
+                        <span>ページ全体</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- 選択テキスト表示 -->
+            <section class="selected-text-section">
+                <h3>選択中のテキスト</h3>
+                <div class="selected-text-preview" id="selectedTextPreview">
+                    テキストを選択してください
+                </div>
+            </section>
+
+            <!-- 実行ボタン -->
+            <section class="action-section">
+                <button id="transformBtn" class="transform-btn" disabled>
+                    変換実行
+                </button>
+                <button id="cancelBtn" class="cancel-btn" style="display: none;">
+                    キャンセル
+                </button>
+            </section>
+
+            <!-- 結果表示 -->
+            <section class="result-section" id="resultSection" style="display: none;">
+                <h3>変換結果</h3>
+                <div class="result-content">
+                    <div class="result-text" id="resultText"></div>
+                    <div class="result-actions">
+                        <button id="copyBtn" class="copy-btn">コピー</button>
+                        <button id="clearBtn" class="clear-btn">クリア</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- エラー表示 -->
+            <section class="error-section" id="errorSection" style="display: none;">
+                <div class="error-content">
+                    <div class="error-message" id="errorMessage"></div>
+                    <div class="error-actions">
+                        <button id="retryBtn" class="retry-btn" style="display: none;">再試行</button>
+                        <button id="closeErrorBtn" class="close-error-btn">閉じる</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ローディング表示 -->
+            <section class="loading-section" id="loadingSection" style="display: none;">
+                <div class="loading-content">
+                    <div class="spinner"></div>
+                    <div class="loading-message">変換中...</div>
+                </div>
+            </section>
+        </main>
+
+        <!-- フッター -->
+        <footer class="popup-footer">
+            <div class="status-info">
+                <span id="statusText">準備完了</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../js/popup.js"></script>
+</body>
+
+</html>

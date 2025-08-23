@@ -1,24 +1,22 @@
 {
     "manifest_version": 3,
-    "name": "AI Text Simplifier",
-    "version": "1.0",
-    "description": "専門的な文章をわかりやすく翻訳する拡張機能",
+    "name": "Text-Simpler",
+    "version": "1.0.0",
+    "description": "Webページ上の文章を生成AIで変換し、理解容易性・抽象度・学年相当の読みやすさを制御して提示する",
     "permissions": [
         "activeTab",
         "storage",
-        "scripting",
-        "contextMenus",
-        "tabs"
+        "scripting"
     ],
     "host_permissions": [
         "<all_urls>"
     ],
     "action": {
-        "default_popup": "popup.html",
+        "default_popup": "html/popup.html",
         "default_icon": "icons/icon.png"
     },
     "background": {
-        "service_worker": "background.js"
+        "service_worker": "js/background.js"
     },
     "content_scripts": [
         {
@@ -26,12 +24,12 @@
                 "<all_urls>"
             ],
             "js": [
-                "content.js"
+                "js/content.js"
             ]
         }
     ],
     "options_ui": {
-        "page": "options.html",
+        "page": "html/options.html",
         "open_in_tab": true
     },
     "icons": {
