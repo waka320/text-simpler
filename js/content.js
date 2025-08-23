@@ -1,44 +1,83 @@
 /**
- * Text-Simpler Content Script (MVP版)
- * ページ上でのテキスト選択とメッセージ処理を担当
+ * Text-Simpler Content Script (Modular Version)
+ * モジュール化されたコンテンツスクリプト
  */
 
-console.log('Text-Simpler: Content script loaded');
+console.log('Text-Simpler: Modular content script loaded');
 
 // グローバル変数
 let currentSelectedText = '';
 let currentSelection = null;
 let isProcessing = false;
-let transformedElements = new Map(); // 変換された要素の履歴を保持
+
+// モジュールインスタンス（グローバル変数から取得）
+const modules = {
+  eventBus: typeof eventBus !== 'undefined' ? eventBus : null,
+  textProcessor: typeof textProcessor !== 'undefined' ? textProcessor : null,
+  uiComponents: typeof uiComponents !== 'undefined' ? uiComponents : null,
+  domManipulator: typeof domManipulator !== 'undefined' ? domManipulator : null
+};
 
 // 初期化
 function initialize() {
   // 選択テキストの監視
   document.addEventListener('mouseup', handleTextSelection);
   document.addEventListener('keyup', handleTextSelection);
-
+  
   // メッセージリスナー
   chrome.runtime.onMessage.addListener(handleRuntimeMessage);
+  
+  // イベントバスの設定
+  if (modules.eventBus) {
+    setupEventListeners();
+  }
+  
+  console.log('Text-Simpler: Modular content script initialized');
+}
 
-  console.log('Text-Simpler: Content script initialized');
+/**
+ * イベントリスナーの設定
+ */
+function setupEventListeners() {
+  // 選択変更イベント
+  modules.eventBus.on(modules.eventBus.EVENT_TYPES.SELECTION_CHANGED, (data) => {
+    console.log('Selection changed:', data);
+  });
+  
+  // 変換成功イベント
+  modules.eventBus.on(modules.eventBus.EVENT_TYPES.TRANSFORM_SUCCESS, (data) => {
+    console.log('Transform success:', data);
+  });
 }
 
 /**
  * テキスト選択イベントハンドラ
  */
 function handleTextSelection() {
-  // 処理中の場合はスキップ
   if (isProcessing) return;
-
+  
   setTimeout(() => {
     const selection = window.getSelection();
     const selectedText = selection.toString().trim();
-
+    
     // 選択テキストが変更された場合のみ処理
     if (selectedText !== currentSelectedText) {
       currentSelectedText = selectedText;
       currentSelection = selection.rangeCount > 0 ? selection.getRangeAt(0).cloneRange() : null;
-
+      
+      // DOM操作モジュールの選択範囲を更新
+      if (modules.domManipulator && modules.domManipulator.selectionManager) {
+        modules.domManipulator.selectionManager.updateSelection();
+      }
+      
+      // イベントバスで通知
+      if (modules.eventBus) {
+        modules.eventBus.emitTyped(modules.eventBus.EVENT_TYPES.SELECTION_CHANGED, {
+          text: selectedText,
+          length: selectedText.length
+        });
+      }
+      
       // バックグラウンドに選択テキストを通知
       if (selectedText && selectedText.length > 5) {
         chrome.runtime.sendMessage({
@@ -63,19 +102,19 @@ function handleRuntimeMessage(request, sender, sendResponse) {
         text: currentSelectedText
       });
       break;
-
+      
     case 'transformSelectedText':
       handleTransformRequest(request, sendResponse);
       return true; // 非同期レスポンス
-
+      
     case 'undoTransform':
       handleUndoRequest(request, sendResponse);
       break;
-
+      
     case 'ping':
       sendResponse({ success: true, message: 'Content script is ready' });
       break;
-
+      
     default:
       sendResponse({
         success: false,
@@ -90,27 +129,38 @@ function handleRuntimeMessage(request, sender, sendResponse) {
 async function handleTransformRequest(request, sendResponse) {
   try {
     isProcessing = true;
-
+    
     const { mode, level, useSelectedText = true } = request;
     let targetText = '';
-
+    
     if (useSelectedText) {
       targetText = currentSelectedText;
       if (!targetText || targetText.length < 5) {
         throw new Error('変換対象のテキストが選択されていません');
       }
     } else {
-      // ページ全体のテキスト取得（MVP版では簡易実装）
-      targetText = extractPageText();
+      // ページ全体のテキスト取得
+      if (modules.domManipulator) {
+        targetText = modules.domManipulator.extractPageText();
+      } else {
+        targetText = extractPageTextFallback();
+      }
+      
       if (!targetText || targetText.length < 5) {
         throw new Error('ページにテキストが見つかりません');
       }
     }
-
+    
     // テキストが長い場合はチャンク分割
     let transformRequest;
     if (targetText.length > 600) {
-      const chunks = splitTextIntoChunks(targetText);
+      let chunks;
+      if (modules.textProcessor) {
+        chunks = modules.textProcessor.splitIntoChunks(targetText);
+      } else {
+        chunks = splitTextIntoChunksFallback(targetText);
+      }
+      
       transformRequest = {
         action: 'transform',
         chunks: chunks,
@@ -125,14 +175,25 @@ async function handleTransformRequest(request, sendResponse) {
         level: level
       };
     }
-
+    
     // バックグラウンドに変換リクエストを送信
     const response = await chrome.runtime.sendMessage(transformRequest);
-
+    
     if (response.success) {
       // 変換結果を直接ページに適用
-      const applyResult = applyTransformToPage(targetText, response.result || response.results, request.mode);
-
+      let applyResult = { success: false };
+      
+      if (modules.domManipulator) {
+        applyResult = modules.domManipulator.replaceSelectedText(
+          targetText, 
+          response.result || response.results, 
+          mode, 
+          currentSelection
+        );
+      } else {
+        applyResult = applyTransformToPageFallback(targetText, response.result || response.results, mode);
+      }
+      
       sendResponse({
         success: true,
         originalText: targetText,
@@ -148,7 +209,7 @@ async function handleTransformRequest(request, sendResponse) {
         canRetry: response.canRetry
       });
     }
-
+    
   } catch (error) {
     console.error('Text-Simpler: Transform request error:', error);
     sendResponse({
@@ -161,85 +222,93 @@ async function handleTransformRequest(request, sendResponse) {
 }
 
 /**
- * ページテキストの抽出（簡易版）
+ * 元に戻すリクエストのハンドラ
  */
-function extractPageText() {
-  // 主要なコンテンツ要素からテキストを抽出
+function handleUndoRequest(request, sendResponse) {
+  const { elementId } = request;
+  
+  if (modules.domManipulator) {
+    if (elementId) {
+      // 特定の要素を元に戻す
+      const success = modules.domManipulator.undoTransform(elementId);
+      sendResponse({ success: success });
+    } else {
+      // 全ての変換を元に戻す
+      const undoCount = modules.domManipulator.undoAllTransforms();
+      sendResponse({ success: true, undoCount: undoCount });
+    }
+  } else {
+    // フォールバック処理
+    const undoCount = undoAllTransformsFallback();
+    sendResponse({ success: true, undoCount: undoCount });
+  }
+}
+
+/**
+ * ページテキスト抽出のフォールバック
+ */
+function extractPageTextFallback() {
   const contentSelectors = [
-    'main',
-    'article',
-    '.content',
-    '.post',
-    '.entry',
-    '#content',
-    '#main'
+    'main', 'article', '.content', '.post', '.entry', '#content', '#main'
   ];
-
+  
   let content = null;
-
-  // 優先順位順にコンテンツ要素を探す
   for (const selector of contentSelectors) {
     content = document.querySelector(selector);
     if (content) break;
   }
-
-  // 見つからない場合はbody全体を対象
+  
   if (!content) {
     content = document.body;
   }
-
-  // テキストを抽出（スクリプトやスタイルは除外）
+  
   const walker = document.createTreeWalker(
     content,
     NodeFilter.SHOW_TEXT,
     {
       acceptNode: function (node) {
-        // 親要素がscript, style, noscriptの場合は除外
         const parent = node.parentElement;
         if (!parent) return NodeFilter.FILTER_REJECT;
-
+        
         const tagName = parent.tagName.toLowerCase();
         if (['script', 'style', 'noscript'].includes(tagName)) {
           return NodeFilter.FILTER_REJECT;
         }
-
-        // 空白のみのテキストは除外
+        
         if (!node.textContent.trim()) {
           return NodeFilter.FILTER_REJECT;
         }
-
+        
         return NodeFilter.FILTER_ACCEPT;
       }
     }
   );
-
+  
   const textParts = [];
   let node;
-
+  
   while (node = walker.nextNode()) {
     const text = node.textContent.trim();
     if (text) {
       textParts.push(text);
     }
   }
-
+  
   return textParts.join('\n').trim();
 }
 
 /**
- * テキストをチャンクに分割
+ * テキスト分割のフォールバック
  */
-function splitTextIntoChunks(text, maxChunkSize = 600) {
+function splitTextIntoChunksFallback(text, maxChunkSize = 600) {
   const chunks = [];
   const paragraphs = text.split(/\n\s*\n/);
-
+  
   let currentChunk = '';
   let chunkIndex = 0;
-
+  
   for (const paragraph of paragraphs) {
-    // 段落が最大サイズを超える場合は文単位で分割
     if (paragraph.length > maxChunkSize) {
-      // 現在のチャンクを保存
       if (currentChunk.trim()) {
         chunks.push({
           index: chunkIndex++,
@@ -247,14 +316,13 @@ function splitTextIntoChunks(text, maxChunkSize = 600) {
         });
         currentChunk = '';
       }
-
-      // 長い段落を文単位で分割
+      
       const sentences = paragraph.split(/[。！？]/);
       for (const sentence of sentences) {
         if (!sentence.trim()) continue;
-
+        
         const sentenceWithPunctuation = sentence + '。';
-
+        
         if (currentChunk.length + sentenceWithPunctuation.length > maxChunkSize) {
           if (currentChunk.trim()) {
             chunks.push({
@@ -268,7 +336,6 @@ function splitTextIntoChunks(text, maxChunkSize = 600) {
         }
       }
     } else {
-      // 通常の段落処理
       if (currentChunk.length + paragraph.length > maxChunkSize) {
         if (currentChunk.trim()) {
           chunks.push({
@@ -282,220 +349,44 @@ function splitTextIntoChunks(text, maxChunkSize = 600) {
       }
     }
   }
-
-  // 最後のチャンクを追加
+  
   if (currentChunk.trim()) {
     chunks.push({
       index: chunkIndex++,
       text: currentChunk.trim()
     });
   }
-
+  
   return chunks;
 }
 
 /**
- * 変換結果をページに直接適用
+ * 変換適用のフォールバック
  */
-function applyTransformToPage(originalText, transformResult, mode) {
-  try {
-    if (!currentSelection) {
-      return { success: false, error: '選択範囲が見つかりません' };
-    }
-
-    // 変換結果のテキストを取得
-    let transformedText = '';
-    if (typeof transformResult === 'string') {
-      transformedText = transformResult;
-    } else if (Array.isArray(transformResult)) {
-      // チャンク結果の場合
-      transformedText = transformResult
-        .filter(chunk => chunk.success)
-        .map(chunk => chunk.transformedText)
-        .join('\n\n');
-    }
-
-    if (!transformedText) {
-      return { success: false, error: '変換結果が空です' };
-    }
-
-    // 選択範囲を復元
-    const selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(currentSelection);
-
-    // 選択範囲の情報を保存
-    const range = currentSelection.cloneRange();
-    const startContainer = range.startContainer;
-    const endContainer = range.endContainer;
-    const startOffset = range.startOffset;
-    const endOffset = range.endOffset;
-
-    // 元のテキストと変換後テキストを保存
-    const elementId = generateUniqueId();
-    const transformData = {
-      id: elementId,
-      originalText: originalText,
-      transformedText: transformedText,
-      mode: mode,
-      range: {
-        startContainer: startContainer,
-        endContainer: endContainer,
-        startOffset: startOffset,
-        endOffset: endOffset
-      },
-      timestamp: Date.now()
-    };
-
-    // 選択範囲のテキストを変換後テキストで置換
-    if (range.startContainer === range.endContainer && range.startContainer.nodeType === Node.TEXT_NODE) {
-      // 単一のテキストノード内の場合
-      const textNode = range.startContainer;
-      const beforeText = textNode.textContent.substring(0, startOffset);
-      const afterText = textNode.textContent.substring(endOffset);
-
-      // 新しいマーカー要素を作成
-      const markerElement = createMarkerElement(transformedText, elementId, mode);
-
-      // テキストノードを分割して置換
-      const parentElement = textNode.parentNode;
-      const beforeNode = document.createTextNode(beforeText);
-      const afterNode = document.createTextNode(afterText);
-
-      parentElement.insertBefore(beforeNode, textNode);
-      parentElement.insertBefore(markerElement, textNode);
-      parentElement.insertBefore(afterNode, textNode);
-      parentElement.removeChild(textNode);
-
-      // 変換データを保存
-      transformedElements.set(elementId, transformData);
-
-      return { success: true, elementId: elementId };
-    } else {
-      // 複数ノードにまたがる場合（簡易実装）
-      const markerElement = createMarkerElement(transformedText, elementId, mode);
-      range.deleteContents();
-      range.insertNode(markerElement);
-
-      // 変換データを保存
-      transformedElements.set(elementId, transformData);
-
-      return { success: true, elementId: elementId };
-    }
-
-  } catch (error) {
-    console.error('Text-Simpler: Apply transform error:', error);
-    return { success: false, error: error.message };
-  }
+function applyTransformToPageFallback(originalText, transformResult, mode) {
+  // 簡易的なフォールバック実装
+  console.log('Applying transform (fallback):', { originalText: originalText.substring(0, 50), mode });
+  return { success: false, error: 'DOM操作モジュールが利用できません' };
 }
 
 /**
- * マーカー要素を作成
+ * 全変換取り消しのフォールバック
  */
-function createMarkerElement(text, elementId, mode) {
-  const marker = document.createElement('span');
-  marker.className = `text-simpler-marker text-simpler-${mode}`;
-  marker.setAttribute('data-text-simpler-id', elementId);
-  marker.setAttribute('data-text-simpler-mode', mode);
-  marker.textContent = text;
-
-  // ダブルクリックで元に戻す
-  marker.addEventListener('dblclick', (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    undoTransform(elementId);
+function undoAllTransformsFallback() {
+  const markers = document.querySelectorAll('[data-text-simpler-id]');
+  let undoCount = 0;
+  
+  markers.forEach(marker => {
+    try {
+      const textNode = document.createTextNode(marker.textContent);
+      marker.parentNode.replaceChild(textNode, marker);
+      undoCount++;
+    } catch (error) {
+      console.error('Undo fallback error:', error);
+    }
   });
-
-  // ホバー時のツールチップ
-  marker.title = `変換済み (${getModeDisplayName(mode)}) - ダブルクリックで元に戻す`;
-
-  return marker;
-}
-
-/**
- * モード表示名を取得
- */
-function getModeDisplayName(mode) {
-  const modeNames = {
-    'simplify': 'わかりやすく',
-    'concretize': '具体化',
-    'abstract': '抽象化',
-    'grade': '学年レベル'
-  };
-  return modeNames[mode] || mode;
-}
-
-/**
- * ユニークIDを生成
- */
-function generateUniqueId() {
-  return 'text-simpler-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-}
-
-/**
- * 変換を元に戻す
- */
-function undoTransform(elementId) {
-  const transformData = transformedElements.get(elementId);
-  if (!transformData) {
-    console.error('Text-Simpler: Transform data not found:', elementId);
-    return false;
-  }
-
-  try {
-    const markerElement = document.querySelector(`[data-text-simpler-id="${elementId}"]`);
-    if (!markerElement) {
-      console.error('Text-Simpler: Marker element not found:', elementId);
-      return false;
-    }
-
-    // マーカー要素を元のテキストで置換
-    const textNode = document.createTextNode(transformData.originalText);
-    markerElement.parentNode.replaceChild(textNode, markerElement);
-
-    // 変換データを削除
-    transformedElements.delete(elementId);
-
-    console.log('Text-Simpler: Transform undone:', elementId);
-    return true;
-
-  } catch (error) {
-    console.error('Text-Simpler: Undo transform error:', error);
-    return false;
-  }
-}
-
-/**
- * 元に戻すリクエストのハンドラ
- */
-function handleUndoRequest(request, sendResponse) {
-  const { elementId } = request;
-
-  if (elementId) {
-    // 特定の要素を元に戻す
-    const success = undoTransform(elementId);
-    sendResponse({ success: success });
-  } else {
-    // 全ての変換を元に戻す
-    let undoCount = 0;
-    for (const [id] of transformedElements) {
-      if (undoTransform(id)) {
-        undoCount++;
-      }
-    }
-    sendResponse({ success: true, undoCount: undoCount });
-  }
-}
-
-/**
- * 変換結果をページに表示（レガシー関数）
- */
-function displayTransformResult(originalText, transformedText, mode) {
-  console.log('Transform result:', {
-    mode,
-    original: originalText.substring(0, 100) + '...',
-    transformed: transformedText.substring(0, 100) + '...'
-  });
+  
+  return undoCount;
 }
 
 // 初期化実行
