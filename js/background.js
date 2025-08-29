@@ -177,6 +177,11 @@ class GeminiClient {
   async generateText(prompt, options = {}) {
     const { apiKey, temperature = 0.2, timeout = 30000 } = options;
 
+    console.log('🚀 Gemini API呼び出し開始');
+    console.log('📝 プロンプト長:', prompt.length);
+    console.log('🔑 APIキー:', apiKey ? `${apiKey.substring(0, 10)}...` : 'なし');
+    console.log('🌡️ Temperature:', temperature);
+
     if (!apiKey) {
       throw new Error('Gemini APIキーが設定されていません');
     }
@@ -190,14 +195,18 @@ class GeminiClient {
         temperature: temperature,
         topP: 0.8,
         topK: 40,
-        maxOutputTokens: 2048
+        maxOutputTokens: 1024
       }
     };
+
+    console.log('🌐 エンドポイント:', endpoint);
+    console.log('📦 リクエストボディ:', JSON.stringify(requestBody, null, 2));
 
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeout);
 
+      console.log('⏰ リクエスト送信中...');
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -210,16 +219,28 @@ class GeminiClient {
 
       clearTimeout(timeoutId);
 
+      console.log('📡 レスポンス受信:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+
       if (!response.ok) {
         const errorText = await response.text();
+        console.error('❌ API エラーレスポンス:', errorText);
         throw new Error(`API request failed: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
-      return this._extractResponseText(data);
+      console.log('📄 APIレスポンスデータ:', JSON.stringify(data, null, 2));
+
+      const result = this._extractResponseText(data);
+      console.log('✅ 抽出されたテキスト:', result);
+
+      return result;
 
     } catch (error) {
-      console.error('Gemini API呼び出しエラー:', error);
+      console.error('❌ Gemini API呼び出しエラー:', error);
       throw error;
     }
   }
@@ -235,17 +256,71 @@ class GeminiClient {
   }
 
   _extractResponseText(data) {
-    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-      const content = data.candidates[0].content;
-      if (content.parts && content.parts[0] && content.parts[0].text) {
-        return { text: content.parts[0].text.trim() };
+    console.log('🔍 レスポンス解析開始');
+    console.log('📊 データ構造:', {
+      hasCandidates: !!data.candidates,
+      candidatesLength: data.candidates?.length,
+      hasError: !!data.error,
+      dataKeys: Object.keys(data)
+    });
+
+    if (data.candidates && data.candidates[0]) {
+      const candidate = data.candidates[0];
+      console.log('🎯 候補データ:', {
+        hasContent: !!candidate.content,
+        hasFinishReason: !!candidate.finishReason,
+        finishReason: candidate.finishReason,
+        candidateKeys: Object.keys(candidate)
+      });
+
+      if (candidate.content) {
+        const content = candidate.content;
+        console.log('📝 コンテンツデータ:', {
+          hasParts: !!content.parts,
+          partsLength: content.parts?.length,
+          contentKeys: Object.keys(content)
+        });
+
+        if (content.parts && content.parts[0]) {
+          const part = content.parts[0];
+          console.log('📄 パートデータ:', {
+            hasText: !!part.text,
+            textLength: part.text?.length,
+            partKeys: Object.keys(part)
+          });
+
+          if (part.text) {
+            const extractedText = part.text.trim();
+            console.log('✅ 抽出成功:', extractedText.substring(0, 100) + '...');
+            return { text: extractedText };
+          }
+        }
+      }
+
+      // finishReasonをチェック
+      if (candidate.finishReason === 'SAFETY') {
+        throw new Error('コンテンツが安全性フィルターによってブロックされました');
+      }
+
+      if (candidate.finishReason === 'MAX_TOKENS') {
+        throw new Error('生成されたテキストが長すぎます。短いテキストで再試行してください。');
+      }
+
+      if (candidate.finishReason === 'RECITATION') {
+        throw new Error('著作権の問題により生成が停止されました');
+      }
+
+      if (candidate.finishReason === 'OTHER') {
+        throw new Error('不明な理由により生成が停止されました');
       }
     }
 
     if (data.error) {
+      console.error('🚨 APIエラー:', data.error);
       throw new Error(`API Error: ${data.error.message || 'Unknown error'}`);
     }
 
+    console.error('❌ 予期しないレスポンス構造:', data);
     throw new Error('APIから有効なレスポンスが返されませんでした');
   }
 }
@@ -262,31 +337,23 @@ class PromptEngine {
   }
 
   _getSystemPrompt(mode, level) {
-    const baseInstructions = '事実を追加しない。固有名詞と数値は保持する。意味は変えない。出力は日本語の自然文のみ。';
-
     switch (mode) {
       case 'simplify':
-        return `あなたは日本語のリライト支援AI。専門用語をやさしい言葉に置き換え、文を短くし、意味は変えない。${baseInstructions}`;
+        return `専門用語を簡単な言葉に変え、短い文で書き直してください。意味は変えずに。`;
       case 'concretize':
-        return `抽象概念を具体例・手順・数値目安で補う。ただし事実の追加は禁止。推定は「例」として明示。${baseInstructions}`;
+        return `抽象的な内容を具体例で説明してください。事実は追加しないでください。`;
       case 'abstract':
-        return `具体例から本質を抽出し一般化する。個別事例名は必要時のみ保持。${baseInstructions}`;
+        return `具体例から共通点を見つけて、一般的な内容にしてください。`;
       case 'grade':
         const gradeInfo = this._getGradeInfo(level);
-        return `日本語の文章を${gradeInfo.name}向けに書き直す。平均文長${gradeInfo.maxLength}文字以下。${gradeInfo.description}。${baseInstructions}`;
+        return `${gradeInfo.name}にわかるように書き直してください。一文は${gradeInfo.maxLength}文字以下で。`;
       default:
-        return `あなたは日本語のリライト支援AI。専門用語をやさしい言葉に置き換え、文を短くし、意味は変えない。${baseInstructions}`;
+        return `専門用語を簡単な言葉に変え、短い文で書き直してください。意味は変えずに。`;
     }
   }
 
   _getUserPrompt(text, mode, level) {
-    switch (mode) {
-      case 'grade':
-        const gradeInfo = this._getGradeInfo(level);
-        return `以下の文章を${gradeInfo.name}向けにリライトしてください。\n---\n${text}\n---`;
-      default:
-        return `以下の文章を${mode === 'simplify' ? 'わかりやすく' : mode === 'concretize' ? '具体的に' : '抽象化して'}書き直してください。\n---\n${text}\n---`;
-    }
+    return `次の文章を書き直してください：\n\n${text}`;
   }
 
   _getGradeInfo(level) {
@@ -344,21 +411,31 @@ function initializeModules() {
 // ============================================================================
 
 async function transformSingleText({ text, mode, level, apiKey, temperature }) {
+  console.log('🔄 テキスト変換開始');
+  console.log('📝 入力テキスト:', text.substring(0, 100) + '...');
+  console.log('🎯 モード:', mode);
+  console.log('📚 レベル:', level);
+  console.log('🌡️ Temperature:', temperature);
+
   try {
     // プロンプト生成
+    console.log('🛠️ プロンプト生成中...');
     const prompt = modules.promptEngine.generatePrompt(text, mode, level);
+    console.log('📋 生成されたプロンプト:', prompt.substring(0, 200) + '...');
 
     // API呼び出し
+    console.log('🌐 API呼び出し中...');
     const response = await modules.geminiClient.generateText(prompt, {
       apiKey,
       temperature,
       timeout: 30000
     });
 
+    console.log('✅ 変換完了:', response.text.substring(0, 100) + '...');
     return response.text;
 
   } catch (error) {
-    console.error('Transform error:', error);
+    console.error('❌ Transform error:', error);
     throw new Error(error.message || '変換に失敗しました');
   }
 }
@@ -410,17 +487,22 @@ async function handleMessage(request, sender, sendResponse) {
 }
 
 async function handleTransformRequest(request, sendResponse) {
+  console.log('📨 変換リクエスト受信:', request);
+
   const { text, mode, level } = request;
 
   try {
+    console.log('⚙️ 設定読み込み中...');
     const settings = await modules.settingsManager.getSettings([
       'geminiApiKey', 'temperature', 'defaultMode', 'gradeLevel'
     ]);
+    console.log('📋 読み込まれた設定:', { ...settings, geminiApiKey: settings.geminiApiKey ? '設定済み' : '未設定' });
 
     if (!settings.geminiApiKey) {
       throw new Error('Gemini APIキーが設定されていません');
     }
 
+    console.log('🚀 変換処理開始...');
     const result = await transformSingleText({
       text,
       mode: mode || settings.defaultMode,
@@ -429,12 +511,14 @@ async function handleTransformRequest(request, sendResponse) {
       temperature: settings.temperature
     });
 
+    console.log('✅ 変換成功、レスポンス送信');
     sendResponse({
       success: true,
       result: result
     });
 
   } catch (error) {
+    console.error('❌ 変換リクエスト処理エラー:', error);
     sendResponse({
       success: false,
       error: error.message
