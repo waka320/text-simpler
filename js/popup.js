@@ -256,14 +256,27 @@ async function handleTransform() {
             throw new Error('Gemini APIキーが設定されていません。設定ページで設定してください。');
         }
 
+        // 変換対象テキストの取得
+        let targetText = '';
+
+        if (currentState.targetType === 'selection') {
+            if (!currentState.selectedText || currentState.selectedText.length < 5) {
+                throw new Error('変換対象のテキストが選択されていません');
+            }
+            targetText = currentState.selectedText;
+        } else {
+            // ページ全体のテキスト取得は今回は簡単にスキップ
+            throw new Error('ページ全体の変換は現在対応していません');
+        }
+
         // コンテンツスクリプトに変換リクエストを送信
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
         const transformRequest = {
-            action: 'transformSelectedText',
+            action: 'transformText',
+            text: targetText,
             mode: currentState.mode,
-            level: currentState.gradeLevel,
-            useSelectedText: currentState.targetType === 'selection'
+            level: currentState.gradeLevel
         };
 
         const response = await chrome.tabs.sendMessage(tab.id, transformRequest);
@@ -368,11 +381,11 @@ async function handleUndoAll() {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
         const response = await chrome.tabs.sendMessage(tab.id, {
-            action: 'undoTransform'
+            action: 'undoAllTransforms'
         });
 
         if (response && response.success) {
-            elements.statusText.textContent = `${response.undoCount || 0}個の変換を元に戻しました`;
+            elements.statusText.textContent = response.message || '変換を元に戻しました';
             elements.undoAllBtn.style.display = 'none';
 
             // 一時的にボタンテキストを変更

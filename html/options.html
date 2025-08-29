@@ -13,16 +13,13 @@
         <!-- ヘッダー -->
         <header class="options-header">
             <h1>Text-Simpler 設定</h1>
-            <div class="version-info">
-                <span>バージョン 1.0.0 (MVP)</span>
-            </div>
         </header>
 
         <!-- メインコンテンツ -->
         <main class="options-main">
             <!-- API設定セクション -->
             <section class="settings-section">
-                <h2>🔑 API設定</h2>
+                <h2>API設定</h2>
                 <div class="setting-group">
                     <label for="geminiApiKey" class="setting-label">
                         Gemini API キー
@@ -50,74 +47,27 @@
                 </div>
             </section>
 
-            <!-- デフォルト設定セクション -->
-            <section class="settings-section">
-                <h2>⚙️ デフォルト設定</h2>
-
-                <div class="setting-group">
-                    <label for="defaultMode" class="setting-label">デフォルト変換モード</label>
-                    <select id="defaultMode" class="setting-select">
-                        <option value="simplify">わかりやすく</option>
-                        <option value="concretize">具体化</option>
-                        <option value="abstract">抽象化</option>
-                        <option value="grade">学年レベル</option>
-                    </select>
-                    <div class="setting-description">
-                        ポップアップを開いた時に選択されるデフォルトの変換モードです。
-                    </div>
-                </div>
-
-                <div class="setting-group">
-                    <label for="gradeLevel" class="setting-label">デフォルト学年レベル</label>
-                    <select id="gradeLevel" class="setting-select">
-                        <option value="elementary">小学生</option>
-                        <option value="junior">中学生</option>
-                        <option value="senior">高校生</option>
-                    </select>
-                    <div class="setting-description">
-                        学年レベルモード使用時のデフォルト設定です。
-                    </div>
-                </div>
-
-                <div class="setting-group">
-                    <label for="temperature" class="setting-label">
-                        温度パラメータ
-                        <span class="current-value" id="temperatureValue">0.2</span>
-                    </label>
-                    <input type="range" id="temperature" class="setting-range" min="0" max="1" step="0.1" value="0.2">
-                    <div class="range-labels">
-                        <span>保守的 (0.0)</span>
-                        <span>創造的 (1.0)</span>
-                    </div>
-                    <div class="setting-description">
-                        AIの応答の創造性を制御します。低い値ほど一貫性があり、高い値ほど多様性があります。
-                    </div>
-                </div>
-            </section>
-
             <!-- 使用方法セクション -->
             <section class="settings-section">
-                <h2>📖 使用方法</h2>
+                <h2>使用方法</h2>
                 <div class="usage-guide">
                     <ol>
                         <li>上記でGemini APIキーを設定してください</li>
                         <li>Webページでテキストを選択します</li>
                         <li>拡張機能アイコンをクリックしてポップアップを開きます</li>
                         <li>変換モードを選択して「変換実行」をクリックします</li>
-                        <li>変換結果をコピーして利用できます</li>
                     </ol>
                 </div>
             </section>
 
             <!-- 注意事項セクション -->
             <section class="settings-section">
-                <h2>⚠️ 注意事項</h2>
+                <h2>注意事項</h2>
                 <div class="notice-content">
                     <ul>
                         <li>APIキーは安全に保存されますが、第三者と共有しないでください</li>
                         <li>Gemini APIの使用には料金が発生する場合があります</li>
-                        <li>変換結果の正確性は保証されません。重要な文書では内容を確認してください</li>
-                        <li>個人情報を含むテキストの変換にはご注意ください</li>
+                        <li>変換結果の正確性は保証されません</li>
                     </ul>
                 </div>
             </section>
@@ -128,9 +78,6 @@
             <div class="save-section">
                 <button type="button" id="saveSettings" class="save-btn">
                     設定を保存
-                </button>
-                <button type="button" id="resetSettings" class="reset-btn">
-                    デフォルトに戻す
                 </button>
             </div>
             <div class="status-section">

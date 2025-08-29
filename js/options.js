@@ -1,5 +1,5 @@
 /**
- * Text-Simpler Options Script (MVP版)
+ * Text-Simpler Options Script (シンプル版)
  * 設定ページのUI制御と設定の保存/読み込み
  */
 
@@ -11,15 +11,8 @@ const elements = {
   validateApiKey: document.getElementById('validateApiKey'),
   validationStatus: document.getElementById('validationStatus'),
 
-  // デフォルト設定
-  defaultMode: document.getElementById('defaultMode'),
-  gradeLevel: document.getElementById('gradeLevel'),
-  temperature: document.getElementById('temperature'),
-  temperatureValue: document.getElementById('temperatureValue'),
-
   // アクション
   saveSettings: document.getElementById('saveSettings'),
-  resetSettings: document.getElementById('resetSettings'),
   saveStatus: document.getElementById('saveStatus'),
 
   // ローディング
@@ -61,14 +54,8 @@ function setupEventListeners() {
   elements.toggleApiKeyVisibility.addEventListener('click', handleToggleApiKeyVisibility);
   elements.validateApiKey.addEventListener('click', handleValidateApiKey);
 
-  // デフォルト設定
-  elements.defaultMode.addEventListener('change', handleSettingChange);
-  elements.gradeLevel.addEventListener('change', handleSettingChange);
-  elements.temperature.addEventListener('input', handleTemperatureChange);
-
   // アクション
   elements.saveSettings.addEventListener('click', handleSaveSettings);
-  elements.resetSettings.addEventListener('click', handleResetSettings);
 
   // ページ離脱時の警告
   window.addEventListener('beforeunload', handleBeforeUnload);
@@ -112,12 +99,6 @@ function populateForm(settings) {
     elements.geminiApiKey.value = '';
     elements.geminiApiKey.dataset.hasValue = 'false';
   }
-
-  // デフォルト設定
-  elements.defaultMode.value = settings.defaultMode || 'simplify';
-  elements.gradeLevel.value = settings.gradeLevel || 'junior';
-  elements.temperature.value = settings.temperature || 0.2;
-  elements.temperatureValue.textContent = settings.temperature || 0.2;
 }
 
 /**
@@ -210,34 +191,13 @@ async function handleValidateApiKey() {
 }
 
 /**
- * 設定変更ハンドラ
- */
-function handleSettingChange() {
-  hasUnsavedChanges = true;
-  updateUI();
-}
-
-/**
- * 温度パラメータ変更ハンドラ
- */
-function handleTemperatureChange() {
-  const value = parseFloat(elements.temperature.value);
-  elements.temperatureValue.textContent = value.toFixed(1);
-  handleSettingChange();
-}
-
-/**
  * 設定保存ハンドラ
  */
 async function handleSaveSettings() {
   try {
     showLoading();
 
-    const settings = {
-      defaultMode: elements.defaultMode.value,
-      gradeLevel: elements.gradeLevel.value,
-      temperature: parseFloat(elements.temperature.value)
-    };
+    const settings = {};
 
     // APIキーが変更されている場合のみ保存
     const apiKeyValue = elements.geminiApiKey.value;
@@ -267,50 +227,6 @@ async function handleSaveSettings() {
   } catch (error) {
     console.error('Settings save error:', error);
     showStatus('設定の保存に失敗しました: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-    updateUI();
-  }
-}
-
-/**
- * 設定リセットハンドラ
- */
-async function handleResetSettings() {
-  if (!confirm('設定をデフォルト値に戻しますか？\n（APIキーは削除されません）')) {
-    return;
-  }
-
-  try {
-    showLoading();
-
-    // デフォルト設定（APIキー以外）
-    const defaultSettings = {
-      defaultMode: 'simplify',
-      gradeLevel: 'junior',
-      temperature: 0.2
-    };
-
-    const response = await chrome.runtime.sendMessage({
-      action: 'saveSettings',
-      settings: defaultSettings
-    });
-
-    if (response.success) {
-      // フォームを更新（APIキーは保持）
-      elements.defaultMode.value = defaultSettings.defaultMode;
-      elements.gradeLevel.value = defaultSettings.gradeLevel;
-      elements.temperature.value = defaultSettings.temperature;
-      elements.temperatureValue.textContent = defaultSettings.temperature;
-
-      hasUnsavedChanges = false;
-      showStatus('設定をデフォルト値に戻しました', 'success');
-    } else {
-      throw new Error(response.error || '設定のリセットに失敗しました');
-    }
-  } catch (error) {
-    console.error('Settings reset error:', error);
-    showStatus('設定のリセットに失敗しました: ' + error.message, 'error');
   } finally {
     hideLoading();
     updateUI();

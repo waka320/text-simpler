@@ -158,7 +158,7 @@
 ## 10. データ/設定仕様（主要）
 
 - **apiProvider**: "openai"|"gemini"
-- **model**: 例 "gpt-4o-mini"|"gemini-1.5-pro"
+- **model**: 例 "gpt-4o-mini"|"gemini-2.5-pro"
 - **temperature**: 0.0–1.0（既定0.3）
 - **maxTokens**: 既定2,000（モデル上限に追従）
 - **defaultMode**: "simplify"|"concretize"|"abstract"|"grade"

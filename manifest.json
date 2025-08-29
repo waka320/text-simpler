@@ -24,10 +24,6 @@
                 "<all_urls>"
             ],
             "js": [
-                "js/modules/utils/event-emitter.js",
-                "js/modules/utils/text-processor.js",
-                "js/modules/ui/ui-components.js",
-                "js/modules/ui/dom-manipulator.js",
                 "js/content.js"
             ],
             "css": [

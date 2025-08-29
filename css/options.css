@@ -1,5 +1,5 @@
 /**
- * Text-Simpler Options Styles (MVP版)
+ * Text-Simpler Options Styles (シンプル版)
  */
 
 /* リセットとベース */
@@ -12,50 +12,44 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     font-size: 14px;
-    line-height: 1.6;
+    line-height: 1.5;
     color: #333;
-    background: #f8f9fa;
+    background: #f5f5f5;
 }
 
 /* オプションコンテナ */
 .options-container {
-    max-width: 800px;
+    max-width: 600px;
     margin: 0 auto;
     background: white;
     min-height: 100vh;
     position: relative;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 /* ヘッダー */
 .options-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #4a5568;
     color: white;
-    padding: 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    padding: 16px 20px;
+    text-align: center;
 }
 
 .options-header h1 {
-    font-size: 24px;
-    font-weight: 600;
-}
-
-.version-info {
-    font-size: 12px;
-    opacity: 0.8;
+    font-size: 20px;
+    font-weight: 500;
 }
 
 /* メインコンテンツ */
 .options-main {
-    padding: 32px;
+    padding: 20px;
 }
 
 /* 設定セクション */
 .settings-section {
-    margin-bottom: 40px;
-    padding-bottom: 32px;
-    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .settings-section:last-child {
@@ -64,18 +58,15 @@ body {
 }
 
 .settings-section h2 {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 600;
-    margin-bottom: 20px;
-    color: #495057;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    margin-bottom: 12px;
+    color: #2d3748;
 }
 
 /* 設定グループ */
 .setting-group {
-    margin-bottom: 24px;
+    margin-bottom: 16px;
 }
 
 .setting-group:last-child {
@@ -85,43 +76,36 @@ body {
 .setting-label {
     display: block;
     font-weight: 500;
-    margin-bottom: 8px;
-    color: #495057;
+    margin-bottom: 6px;
+    color: #4a5568;
 }
 
 .required {
-    color: #dc3545;
+    color: #e53e3e;
     margin-left: 4px;
-}
-
-.current-value {
-    font-weight: normal;
-    color: #667eea;
-    margin-left: 8px;
 }
 
 /* 入力フィールド */
 .setting-input,
 .setting-select {
     width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
+    padding: 8px 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
     font-size: 14px;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.2s;
 }
 
 .setting-input:focus,
 .setting-select:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #4a5568;
 }
 
 /* APIキー入力グループ */
 .api-key-input-group {
     display: flex;
-    gap: 8px;
+    gap: 6px;
 }
 
 .api-key-input {
@@ -129,44 +113,30 @@ body {
 }
 
 .toggle-visibility-btn {
-    padding: 10px 12px;
-    border: 1px solid #ced4da;
-    background: #f8f9fa;
-    border-radius: 6px;
+    padding: 8px 10px;
+    border: 1px solid #cbd5e0;
+    background: #f7fafc;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 12px;
     transition: all 0.2s;
 }
 
 .toggle-visibility-btn:hover {
-    background: #e9ecef;
-    border-color: #adb5bd;
-}
-
-/* レンジ入力 */
-.setting-range {
-    width: 100%;
-    margin: 8px 0;
-}
-
-.range-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    color: #6c757d;
-    margin-top: 4px;
+    background: #edf2f7;
+    border-color: #a0aec0;
 }
 
 /* 設定説明 */
 .setting-description {
-    margin-top: 8px;
-    font-size: 13px;
-    color: #6c757d;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #718096;
     line-height: 1.4;
 }
 
 .setting-description a {
-    color: #667eea;
+    color: #4a5568;
     text-decoration: none;
 }
 
@@ -176,25 +146,25 @@ body {
 
 /* APIキーアクション */
 .api-key-actions {
-    margin-top: 12px;
+    margin-top: 8px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
 .validate-btn {
-    padding: 8px 16px;
-    border: 1px solid #667eea;
+    padding: 6px 12px;
+    border: 1px solid #4a5568;
     background: white;
-    color: #667eea;
-    border-radius: 6px;
+    color: #4a5568;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 12px;
     transition: all 0.2s;
 }
 
 .validate-btn:hover:not(:disabled) {
-    background: #667eea;
+    background: #4a5568;
     color: white;
 }
 
@@ -204,40 +174,40 @@ body {
 }
 
 .validation-status {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
 }
 
 .validation-status.success {
-    color: #28a745;
+    color: #38a169;
 }
 
 .validation-status.error {
-    color: #dc3545;
+    color: #e53e3e;
 }
 
 .validation-status.loading {
-    color: #667eea;
+    color: #4a5568;
 }
 
 /* 使用方法ガイド */
 .usage-guide ol {
-    padding-left: 20px;
+    padding-left: 16px;
 }
 
 .usage-guide li {
-    margin-bottom: 8px;
-    color: #495057;
+    margin-bottom: 6px;
+    color: #4a5568;
 }
 
 /* 注意事項 */
 .notice-content ul {
-    padding-left: 20px;
+    padding-left: 16px;
 }
 
 .notice-content li {
-    margin-bottom: 8px;
-    color: #495057;
+    margin-bottom: 6px;
+    color: #4a5568;
 }
 
 /* フッター */
@@ -245,8 +215,8 @@ body {
     position: sticky;
     bottom: 0;
     background: white;
-    border-top: 1px solid #e9ecef;
-    padding: 20px 32px;
+    border-top: 1px solid #e2e8f0;
+    padding: 16px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -254,58 +224,45 @@ body {
 
 .save-section {
     display: flex;
-    gap: 12px;
+    gap: 10px;
 }
 
-.save-btn,
-.reset-btn {
-    padding: 10px 20px;
+.save-btn {
+    padding: 8px 16px;
     border: none;
-    border-radius: 6px;
+    background: #4a5568;
+    color: white;
+    border-radius: 4px;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
 }
 
-.save-btn {
-    background: #667eea;
-    color: white;
-}
-
 .save-btn:hover:not(:disabled) {
-    background: #5a6fd8;
+    background: #2d3748;
 }
 
 .save-btn:disabled {
-    background: #adb5bd;
+    background: #a0aec0;
     cursor: not-allowed;
 }
 
-.reset-btn {
-    background: #6c757d;
-    color: white;
-}
-
-.reset-btn:hover {
-    background: #5a6268;
-}
-
 .save-status {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
 }
 
 .save-status.success {
-    color: #28a745;
+    color: #38a169;
 }
 
 .save-status.error {
-    color: #dc3545;
+    color: #e53e3e;
 }
 
 .save-status.info {
-    color: #17a2b8;
+    color: #3182ce;
 }
 
 /* ローディングオーバーレイ */
@@ -324,20 +281,20 @@ body {
 
 .loading-content {
     background: white;
-    padding: 32px;
-    border-radius: 8px;
+    padding: 24px;
+    border-radius: 6px;
     text-align: center;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #667eea;
+    width: 24px;
+    height: 24px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #4a5568;
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin: 0 auto 16px;
+    margin: 0 auto 12px;
 }
 
 @keyframes spin {
@@ -352,7 +309,7 @@ body {
 
 .loading-message {
     font-size: 14px;
-    color: #495057;
+    color: #4a5568;
 }
 
 /* レスポンシブ */
@@ -370,7 +327,7 @@ body {
 
     .options-footer {
         flex-direction: column;
-        gap: 16px;
+        gap: 12px;
         align-items: stretch;
     }
 
