@@ -10,8 +10,7 @@ const elements = {
     gradeSection: document.getElementById('gradeSection'),
     gradeOptions: document.querySelectorAll('input[name="gradeLevel"]'),
 
-    // 対象選択
-    targetOptions: document.querySelectorAll('input[name="targetType"]'),
+    // 選択テキスト表示
     selectedTextPreview: document.getElementById('selectedTextPreview'),
 
     // アクション
@@ -43,7 +42,6 @@ const elements = {
 let currentState = {
     mode: 'simplify',
     gradeLevel: 'junior',
-    targetType: 'selection',
     selectedText: '',
     isProcessing: false,
     lastResult: null,
@@ -86,11 +84,6 @@ function setupEventListeners() {
     // 学年レベル
     elements.gradeOptions.forEach(option => {
         option.addEventListener('change', handleGradeLevelChange);
-    });
-
-    // 対象タイプ
-    elements.targetOptions.forEach(option => {
-        option.addEventListener('change', handleTargetTypeChange);
     });
 
     // アクションボタン
@@ -164,11 +157,6 @@ function updateUI() {
         option.checked = option.value === currentState.gradeLevel;
     });
 
-    // 対象タイプの更新
-    elements.targetOptions.forEach(option => {
-        option.checked = option.value === currentState.targetType;
-    });
-
     // 選択テキストプレビューの更新
     updateSelectedTextPreview();
 
@@ -182,12 +170,9 @@ function updateUI() {
 function updateSelectedTextPreview() {
     const preview = elements.selectedTextPreview;
 
-    if (currentState.targetType === 'page') {
-        preview.textContent = 'ページ全体のテキストを変換します';
-        preview.className = 'selected-text-preview page-mode';
-    } else if (currentState.selectedText) {
-        const truncated = currentState.selectedText.length > 100
-            ? currentState.selectedText.substring(0, 100) + '...'
+    if (currentState.selectedText) {
+        const truncated = currentState.selectedText.length > 120
+            ? currentState.selectedText.substring(0, 120) + '...'
             : currentState.selectedText;
         preview.textContent = truncated;
         preview.className = 'selected-text-preview has-text';
@@ -201,10 +186,9 @@ function updateSelectedTextPreview() {
  * 変換ボタンの状態更新
  */
 function updateTransformButton() {
-    const canTransform = !currentState.isProcessing && (
-        currentState.targetType === 'page' ||
-        (currentState.selectedText && currentState.selectedText.length > 5)
-    );
+    const canTransform = !currentState.isProcessing &&
+        currentState.selectedText &&
+        currentState.selectedText.length > 5;
 
     elements.transformBtn.disabled = !canTransform;
     elements.transformBtn.textContent = currentState.isProcessing ? '変換中...' : '変換実行';
@@ -223,14 +207,6 @@ function handleModeChange(event) {
  */
 function handleGradeLevelChange(event) {
     currentState.gradeLevel = event.target.value;
-}
-
-/**
- * 対象タイプ変更ハンドラ
- */
-function handleTargetTypeChange(event) {
-    currentState.targetType = event.target.value;
-    updateUI();
 }
 
 /**
@@ -257,17 +233,10 @@ async function handleTransform() {
         }
 
         // 変換対象テキストの取得
-        let targetText = '';
-
-        if (currentState.targetType === 'selection') {
-            if (!currentState.selectedText || currentState.selectedText.length < 5) {
-                throw new Error('変換対象のテキストが選択されていません');
-            }
-            targetText = currentState.selectedText;
-        } else {
-            // ページ全体のテキスト取得は今回は簡単にスキップ
-            throw new Error('ページ全体の変換は現在対応していません');
+        if (!currentState.selectedText || currentState.selectedText.length < 5) {
+            throw new Error('変換対象のテキストが選択されていません');
         }
+        const targetText = currentState.selectedText;
 
         // コンテンツスクリプトに変換リクエストを送信
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });

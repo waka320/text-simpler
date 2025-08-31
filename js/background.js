@@ -9,12 +9,12 @@
 
 const DEFAULT_SETTINGS = {
   apiProvider: 'gemini',
-  model: 'gemini-2.5-pro',
+  model: 'gemini-1.5-flash',
   geminiApiKey: '',
   temperature: 0.2,
   defaultMode: 'simplify',
   gradeLevel: 'junior',
-  maxChunkSize: 600,
+  maxChunkSize: 300,
   maxRetries: 2,
   retryDelay: 1000,
   requestTimeout: 30000
@@ -171,7 +171,7 @@ class SettingsManager {
 class GeminiClient {
   constructor() {
     this.baseUrl = 'https://generativelanguage.googleapis.com/v1/models';
-    this.defaultModel = 'gemini-2.5-pro';
+    this.defaultModel = 'gemini-1.5-flash';
   }
 
   async generateText(prompt, options = {}) {
@@ -339,21 +339,21 @@ class PromptEngine {
   _getSystemPrompt(mode, level) {
     switch (mode) {
       case 'simplify':
-        return `専門用語を簡単な言葉に変え、短い文で書き直してください。意味は変えずに。`;
+        return `簡単な言葉で短く書き直して。`;
       case 'concretize':
-        return `抽象的な内容を具体例で説明してください。事実は追加しないでください。`;
+        return `具体例で説明して。`;
       case 'abstract':
-        return `具体例から共通点を見つけて、一般的な内容にしてください。`;
+        return `要点をまとめて。`;
       case 'grade':
         const gradeInfo = this._getGradeInfo(level);
-        return `${gradeInfo.name}にわかるように書き直してください。一文は${gradeInfo.maxLength}文字以下で。`;
+        return `${gradeInfo.name}向けに短く書き直して。`;
       default:
-        return `専門用語を簡単な言葉に変え、短い文で書き直してください。意味は変えずに。`;
+        return `簡単な言葉で短く書き直して。`;
     }
   }
 
   _getUserPrompt(text, mode, level) {
-    return `次の文章を書き直してください：\n\n${text}`;
+    return text;
   }
 
   _getGradeInfo(level) {
@@ -418,9 +418,16 @@ async function transformSingleText({ text, mode, level, apiKey, temperature }) {
   console.log('🌡️ Temperature:', temperature);
 
   try {
+    // テキストが長すぎる場合は分割
+    let processText = text;
+    if (text.length > 300) {
+      console.log('📏 テキストが長いため最初の300文字に短縮');
+      processText = text.substring(0, 300) + '...';
+    }
+
     // プロンプト生成
     console.log('🛠️ プロンプト生成中...');
-    const prompt = modules.promptEngine.generatePrompt(text, mode, level);
+    const prompt = modules.promptEngine.generatePrompt(processText, mode, level);
     console.log('📋 生成されたプロンプト:', prompt.substring(0, 200) + '...');
 
     // API呼び出し
