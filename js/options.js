@@ -10,6 +10,7 @@ const elements = {
   toggleApiKeyVisibility: document.getElementById('toggleApiKeyVisibility'),
   validateApiKey: document.getElementById('validateApiKey'),
   validationStatus: document.getElementById('validationStatus'),
+  modelSelect: document.getElementById('modelSelect'),
 
   // アクション
   saveSettings: document.getElementById('saveSettings'),
@@ -53,6 +54,7 @@ function setupEventListeners() {
   elements.geminiApiKey.addEventListener('input', handleApiKeyChange);
   elements.toggleApiKeyVisibility.addEventListener('click', handleToggleApiKeyVisibility);
   elements.validateApiKey.addEventListener('click', handleValidateApiKey);
+  elements.modelSelect.addEventListener('change', handleModelChange);
 
   // アクション
   elements.saveSettings.addEventListener('click', handleSaveSettings);
@@ -99,6 +101,11 @@ function populateForm(settings) {
     elements.geminiApiKey.value = '';
     elements.geminiApiKey.dataset.hasValue = 'false';
   }
+
+  // モデル選択
+  if (settings.model) {
+    elements.modelSelect.value = settings.model;
+  }
 }
 
 /**
@@ -136,6 +143,14 @@ function handleToggleApiKeyVisibility() {
     loadActualApiKey();
   }
 
+  updateUI();
+}
+
+/**
+ * モデル変更ハンドラ
+ */
+function handleModelChange() {
+  hasUnsavedChanges = true;
   updateUI();
 }
 
@@ -204,6 +219,9 @@ async function handleSaveSettings() {
     if (apiKeyValue && !apiKeyValue.startsWith('●')) {
       settings.geminiApiKey = apiKeyValue;
     }
+
+    // モデル設定を保存
+    settings.model = elements.modelSelect.value;
 
     const response = await chrome.runtime.sendMessage({
       action: 'saveSettings',

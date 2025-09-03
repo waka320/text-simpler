@@ -8,7 +8,7 @@ const elements = {
     // モード選択
     modeTabs: document.querySelectorAll('.mode-tab'),
     gradeSection: document.getElementById('gradeSection'),
-    gradeOptions: document.querySelectorAll('input[name="gradeLevel"]'),
+    gradeLevelSelect: document.getElementById('gradeLevelSelect'),
 
     // 選択テキスト表示
     selectedTextPreview: document.getElementById('selectedTextPreview'),
@@ -40,7 +40,7 @@ const elements = {
 
 // 状態管理
 let currentState = {
-    mode: 'simplify',
+    mode: 'lexicon',
     gradeLevel: 'junior',
     selectedText: '',
     isProcessing: false,
@@ -82,9 +82,7 @@ function setupEventListeners() {
     });
 
     // 学年レベル
-    elements.gradeOptions.forEach(option => {
-        option.addEventListener('change', handleGradeLevelChange);
-    });
+    elements.gradeLevelSelect.addEventListener('change', handleGradeLevelChange);
 
     // アクションボタン
     elements.transformBtn.addEventListener('click', handleTransform);
@@ -112,7 +110,7 @@ async function loadSettings() {
         });
 
         if (response.success) {
-            currentState.mode = response.settings.defaultMode || 'simplify';
+            currentState.mode = response.settings.defaultMode || 'lexicon';
             currentState.gradeLevel = response.settings.gradeLevel || 'junior';
         }
     } catch (error) {
@@ -149,13 +147,8 @@ function updateUI() {
         tab.classList.toggle('active', tab.dataset.mode === currentState.mode);
     });
 
-    // 学年セクションの表示/非表示
-    elements.gradeSection.style.display = currentState.mode === 'grade' ? 'block' : 'none';
-
     // 学年レベルの更新
-    elements.gradeOptions.forEach(option => {
-        option.checked = option.value === currentState.gradeLevel;
-    });
+    elements.gradeLevelSelect.value = currentState.gradeLevel;
 
     // 選択テキストプレビューの更新
     updateSelectedTextPreview();

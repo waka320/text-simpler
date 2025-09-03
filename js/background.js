@@ -9,10 +9,10 @@
 
 const DEFAULT_SETTINGS = {
   apiProvider: 'gemini',
-  model: 'gemini-1.5-flash',
+  model: 'gemini-2.5-flash',
   geminiApiKey: '',
   temperature: 0.2,
-  defaultMode: 'simplify',
+  defaultMode: 'lexicon',
   gradeLevel: 'junior',
   maxChunkSize: 300,
   maxRetries: 2,
@@ -171,11 +171,11 @@ class SettingsManager {
 class GeminiClient {
   constructor() {
     this.baseUrl = 'https://generativelanguage.googleapis.com/v1/models';
-    this.defaultModel = 'gemini-1.5-flash';
+    this.defaultModel = 'gemini-2.5-flash';
   }
 
   async generateText(prompt, options = {}) {
-    const { apiKey, temperature = 0.2, timeout = 30000 } = options;
+    const { apiKey, temperature = 0.2, timeout = 30000, model = this.defaultModel } = options;
 
     console.log('🚀 Gemini API呼び出し開始');
     console.log('📝 プロンプト長:', prompt.length);
@@ -186,7 +186,8 @@ class GeminiClient {
       throw new Error('Gemini APIキーが設定されていません');
     }
 
-    const endpoint = `${this.baseUrl}/${this.defaultModel}:generateContent`;
+    const endpoint = `${this.baseUrl}/${model}:generateContent`;
+    console.log('🤖 使用モデル:', model);
     const requestBody = {
       contents: [{
         parts: [{ text: prompt }]
@@ -195,7 +196,7 @@ class GeminiClient {
         temperature: temperature,
         topP: 0.8,
         topK: 40,
-        maxOutputTokens: 1024
+        maxOutputTokens: 2048
       }
     };
 
@@ -337,27 +338,67 @@ class PromptEngine {
   }
 
   _getSystemPrompt(mode, level) {
+    // 共通方針（簡潔版）
+    const commonPolicy = `やさしい日本語で変換。一文一義、固有名詞・数値・記号・否定・範囲を保持。二重否定回避、外来語に注意。事実は追加しない。`;
+
+    let levelInfo = '';
+    if (level && level !== 'none') {
+      const gradeInfo = this._getGradeInfo(level);
+      levelInfo = `${gradeInfo.name}レベル（文長≤${gradeInfo.maxLength}字）。`;
+    }
+
     switch (mode) {
+      case 'lexicon':
+        return `${commonPolicy}${levelInfo}難語に注釈、指示語を具体化、記号の意味を明記。`;
+      case 'load':
+        return `${commonPolicy}${levelInfo}一文一義、目的→結論→要旨→本文の順。`;
+      case 'cohesion':
+        return `${commonPolicy}${levelInfo}接続詞追加、主語再掲、前提補足。`;
+      // 後方互換性のため旧モードも残す
       case 'simplify':
-        return `簡単な言葉で短く書き直して。`;
+        return `${commonPolicy}${levelInfo}簡単な言葉で短く。`;
       case 'concretize':
-        return `具体例で説明して。`;
+        return `${commonPolicy}${levelInfo}具体例で説明。`;
       case 'abstract':
-        return `要点をまとめて。`;
+        return `${commonPolicy}${levelInfo}要点をまとめる。`;
       case 'grade':
         const gradeInfo = this._getGradeInfo(level);
-        return `${gradeInfo.name}向けに短く書き直して。`;
+        return `${commonPolicy}${gradeInfo.name}向けに変換。`;
       default:
-        return `簡単な言葉で短く書き直して。`;
+        return `${commonPolicy}${levelInfo}語・記号の意味を明確化。`;
     }
   }
 
   _getUserPrompt(text, mode, level) {
-    return text;
+    switch (mode) {
+      case 'lexicon':
+        return `次の文を語と記号の意味が分かるように直してください。--- ${text} ---`;
+      case 'load':
+        return `次の文は情報が多いので、目的→結論→要旨→本文の順に短く並べ替え、文を分割してください。--- ${text} ---`;
+      case 'cohesion':
+        return `次の文のつながりが分かるように、接続詞を足し、指示語を具体化し、必要なら前提を一文で補ってください。--- ${text} ---`;
+      // 後方互換性のため旧モードも残す
+      case 'simplify':
+      case 'concretize':
+      case 'abstract':
+      case 'grade':
+      default:
+        return text;
+    }
   }
 
   _getGradeInfo(level) {
     const gradeLevels = {
+      none: {
+        name: 'なし',
+        maxLength: 0,
+        description: 'レベル指定なし'
+      },
+      kindergarten: {
+        name: '幼稚園児',
+        maxLength: 20,
+        description: 'ひらがな中心、短文、簡単な言葉のみ'
+      },
       elementary: {
         name: '小学生',
         maxLength: 25,
@@ -366,12 +407,17 @@ class PromptEngine {
       junior: {
         name: '中学生',
         maxLength: 35,
-        description: '基本語彙＋頻出専門語に簡単な注釈'
+        description: '基本語彙＋頻出専門語に簡注'
       },
       senior: {
         name: '高校生',
         maxLength: 45,
-        description: '論理接続明確、必要最小の専門語'
+        description: '論理接続を明確、専門語は最小限'
+      },
+      university: {
+        name: '大学生',
+        maxLength: 60,
+        description: '専門用語可、論理的構成重視'
       }
     };
 
@@ -407,10 +453,137 @@ function initializeModules() {
 }
 
 // ============================================================================
+// テキスト分割処理
+// ============================================================================
+
+/**
+ * 長いテキストを適切なサイズのチャンクに分割
+ */
+function splitTextIntoChunks(text, maxChunkSize = 800) {
+  const chunks = [];
+
+  // テキストが短い場合は分割不要
+  if (text.length <= maxChunkSize) {
+    return [text];
+  }
+
+  // 文単位で分割（句点、感嘆符、疑問符で区切る）
+  const sentences = text.split(/[。！？]/).filter(s => s.trim().length > 0);
+
+  let currentChunk = '';
+
+  for (const sentence of sentences) {
+    const sentenceWithPunctuation = sentence + '。';
+
+    // 現在のチャンクに文を追加した場合の長さをチェック
+    if ((currentChunk + sentenceWithPunctuation).length > maxChunkSize && currentChunk.length > 0) {
+      // チャンクが満杯になったら保存して新しいチャンクを開始
+      chunks.push(currentChunk.trim());
+      currentChunk = sentenceWithPunctuation;
+    } else {
+      // チャンクに文を追加
+      currentChunk += sentenceWithPunctuation;
+    }
+  }
+
+  // 最後のチャンクを追加
+  if (currentChunk.trim()) {
+    chunks.push(currentChunk.trim());
+  }
+
+  // チャンクが空の場合は元のテキストをそのまま返す
+  if (chunks.length === 0) {
+    return [text];
+  }
+
+  return chunks;
+}
+
+/**
+ * 複数のチャンクを段階的に処理
+ */
+async function processLongText({ text, mode, level, apiKey, temperature, model }) {
+  console.log('📏 長文処理開始、テキスト長:', text.length);
+
+  // テキストをチャンクに分割
+  const chunks = splitTextIntoChunks(text);
+  console.log('🔀 チャンク数:', chunks.length);
+
+  if (chunks.length === 1) {
+    // 単一チャンクの場合は通常処理
+    console.log('📝 単一チャンク、通常処理を実行');
+    return await transformSingleText({ text, mode, level, apiKey, temperature, model });
+  }
+
+  // 複数チャンクの場合は段階的処理
+  console.log('🔄 複数チャンク、段階的処理を実行');
+  const results = [];
+
+  for (let i = 0; i < chunks.length; i++) {
+    const chunk = chunks[i];
+    console.log(`📋 チャンク ${i + 1}/${chunks.length} 処理中 (${chunk.length}文字)`);
+
+    try {
+      const result = await transformSingleText({
+        text: chunk,
+        mode,
+        level,
+        apiKey,
+        temperature,
+        model
+      });
+
+      results.push({
+        chunkIndex: i,
+        originalText: chunk,
+        transformedText: result,
+        success: true
+      });
+
+      console.log(`✅ チャンク ${i + 1} 処理完了`);
+
+    } catch (error) {
+      console.error(`❌ チャンク ${i + 1} 処理エラー:`, error);
+      results.push({
+        chunkIndex: i,
+        originalText: chunk,
+        error: error.message,
+        success: false
+      });
+    }
+
+    // チャンク間で少し待機（API制限を考慮）
+    if (i < chunks.length - 1) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+  }
+
+  // 結果を統合
+  const successfulResults = results.filter(r => r.success);
+  if (successfulResults.length === 0) {
+    throw new Error('すべてのチャンクの処理に失敗しました');
+  }
+
+  // 変換されたテキストを結合
+  const combinedText = successfulResults
+    .map(r => r.transformedText)
+    .join('\n\n');
+
+  console.log('🎯 長文処理完了、統合テキスト長:', combinedText.length);
+
+  return {
+    text: combinedText,
+    chunks: results,
+    totalChunks: chunks.length,
+    successfulChunks: successfulResults.length
+  };
+}
+
+// ============================================================================
 // テキスト変換処理
 // ============================================================================
 
-async function transformSingleText({ text, mode, level, apiKey, temperature }) {
+async function transformSingleText({ text, mode, level, apiKey, temperature, model }) {
   console.log('🔄 テキスト変換開始');
   console.log('📝 入力テキスト:', text.substring(0, 100) + '...');
   console.log('🎯 モード:', mode);
@@ -418,16 +591,18 @@ async function transformSingleText({ text, mode, level, apiKey, temperature }) {
   console.log('🌡️ Temperature:', temperature);
 
   try {
-    // テキストが長すぎる場合は分割
-    let processText = text;
-    if (text.length > 300) {
-      console.log('📏 テキストが長いため最初の300文字に短縮');
-      processText = text.substring(0, 300) + '...';
+    // 長文の場合はチャンク分割処理を使用
+    if (text.length > 800) {
+      console.log('📏 長文検出、チャンク分割処理を実行');
+      return await processLongText({ text, mode, level, apiKey, temperature, model });
     }
+
+    // 通常の処理（短いテキスト）
+    console.log('📝 通常処理を実行');
 
     // プロンプト生成
     console.log('🛠️ プロンプト生成中...');
-    const prompt = modules.promptEngine.generatePrompt(processText, mode, level);
+    const prompt = modules.promptEngine.generatePrompt(text, mode, level);
     console.log('📋 生成されたプロンプト:', prompt.substring(0, 200) + '...');
 
     // API呼び出し
@@ -435,6 +610,7 @@ async function transformSingleText({ text, mode, level, apiKey, temperature }) {
     const response = await modules.geminiClient.generateText(prompt, {
       apiKey,
       temperature,
+      model,
       timeout: 30000
     });
 
@@ -501,7 +677,7 @@ async function handleTransformRequest(request, sendResponse) {
   try {
     console.log('⚙️ 設定読み込み中...');
     const settings = await modules.settingsManager.getSettings([
-      'geminiApiKey', 'temperature', 'defaultMode', 'gradeLevel'
+      'geminiApiKey', 'temperature', 'defaultMode', 'gradeLevel', 'model'
     ]);
     console.log('📋 読み込まれた設定:', { ...settings, geminiApiKey: settings.geminiApiKey ? '設定済み' : '未設定' });
 
@@ -515,13 +691,28 @@ async function handleTransformRequest(request, sendResponse) {
       mode: mode || settings.defaultMode,
       level: level || settings.gradeLevel,
       apiKey: settings.geminiApiKey,
-      temperature: settings.temperature
+      temperature: settings.temperature,
+      model: settings.model
     });
 
     console.log('✅ 変換成功、レスポンス送信');
+
+    // 長文処理の結果を適切に処理
+    let responseResult = result;
+    if (typeof result === 'object' && result.text) {
+      // チャンク分割処理の結果
+      responseResult = result.text;
+      console.log(`📊 チャンク処理結果: ${result.totalChunks}チャンク中${result.successfulChunks}チャンク成功`);
+    }
+
     sendResponse({
       success: true,
-      result: result
+      result: responseResult,
+      isLongText: typeof result === 'object' && result.chunks,
+      chunkInfo: typeof result === 'object' && result.chunks ? {
+        total: result.totalChunks,
+        successful: result.successfulChunks
+      } : null
     });
 
   } catch (error) {
