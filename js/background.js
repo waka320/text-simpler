@@ -292,6 +292,10 @@ async function handleMessage(request, sender, sendResponse) {
         await handleValidateApiKey(request, sendResponse);
         break;
 
+      case 'openOptionsPage':
+        await handleOpenOptionsPage(request, sendResponse);
+        break;
+
       default:
         sendResponse({
           success: false,
@@ -412,7 +416,27 @@ async function handleValidateApiKey(request, sendResponse) {
     console.error('API key validation handler error:', error);
     sendResponse({
       success: false,
-      valid: false,
+      error: error.message
+    });
+  }
+}
+
+async function handleOpenOptionsPage(request, sendResponse) {
+  try {
+    console.log('Opening options page...');
+
+    // オプションページを開く
+    await chrome.runtime.openOptionsPage();
+
+    sendResponse({
+      success: true,
+      message: 'Options page opened successfully'
+    });
+
+  } catch (error) {
+    console.error('Failed to open options page:', error);
+    sendResponse({
+      success: false,
       error: error.message
     });
   }

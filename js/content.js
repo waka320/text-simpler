@@ -881,6 +881,53 @@ function createFloatingPopup() {
         outline: none;
         border-color: #333;
       }
+      .ts-settings-btn {
+        background: none;
+        border: none;
+        color: #333;
+        font-size: 16px;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 24px;
+        min-height: 24px;
+      }
+      .ts-settings-btn:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+        transform: scale(1.1);
+      }
+      .ts-settings-icon {
+        font-size: 16px;
+        line-height: 1;
+      }
+      .ts-header-controls {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .ts-control-btn {
+        background: none;
+        border: none;
+        color: #333;
+        font-size: 14px;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 24px;
+        min-height: 24px;
+      }
+      .ts-control-btn:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+        transform: scale(1.05);
+      }
       .ts-popup-main {
         padding: 8px;
       }
@@ -899,6 +946,9 @@ function createFloatingPopup() {
       <header class="ts-popup-header" id="ts-popup-header">
         <h1>Text-Simpler</h1>
         <div class="ts-header-controls">
+          <button id="ts-settings-btn" class="ts-control-btn ts-settings-btn" title="設定" aria-label="設定">
+            <span class="ts-settings-icon">⚙️</span>
+          </button>
           <button id="ts-minimize-btn" class="ts-control-btn" title="最小化">−</button>
           <button id="ts-close-btn" class="ts-control-btn" title="閉じる">×</button>
         </div>
@@ -1065,6 +1115,10 @@ function initializeDragFunctionality() {
  * フローティングポップアップのイベントリスナー設定
  */
 function setupFloatingPopupEventListeners() {
+  // 設定ボタン
+  const settingsBtn = floatingPopup.querySelector('#ts-settings-btn');
+  settingsBtn.addEventListener('click', handleFloatingSettings);
+
   // 最小化ボタン
   const minimizeBtn = floatingPopup.querySelector('#ts-minimize-btn');
   minimizeBtn.addEventListener('click', toggleMinimize);
@@ -1329,6 +1383,53 @@ function handleFloatingCloseError() {
   const statusText = floatingPopup.querySelector('#ts-status-text');
   if (statusText) {
     statusText.textContent = '準備完了';
+  }
+}
+
+/**
+ * フローティングポップアップの設定ボタンハンドラー
+ */
+function handleFloatingSettings() {
+  console.log('Settings button clicked, attempting to open options page...');
+
+  try {
+    // 方法1: background.jsを経由してオプションページを開く
+    chrome.runtime.sendMessage({
+      action: 'openOptionsPage'
+    }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.error('Runtime error:', chrome.runtime.lastError);
+        // フォールバック: 直接URLを開く
+        openOptionsPageDirectly();
+      } else if (response && response.success) {
+        console.log('Options page opened successfully via background');
+      } else {
+        console.error('Failed to open options page via background:', response);
+        openOptionsPageDirectly();
+      }
+    });
+  } catch (error) {
+    console.error('Error sending message to background:', error);
+    // フォールバック: 直接URLを開く
+    openOptionsPageDirectly();
+  }
+}
+
+/**
+ * 直接オプションページを開く（フォールバック）
+ */
+function openOptionsPageDirectly() {
+  try {
+    console.log('Opening options page directly...');
+    const optionsUrl = chrome.runtime.getURL('html/options.html');
+    console.log('Options URL:', optionsUrl);
+
+    // 新しいタブで開く
+    window.open(optionsUrl, '_blank');
+  } catch (error) {
+    console.error('Failed to open options page directly:', error);
+    // 最後の手段: ユーザーに手動で開くよう指示
+    alert('設定ページを開けませんでした。拡張機能の管理ページから手動で設定を開いてください。');
   }
 }
 
