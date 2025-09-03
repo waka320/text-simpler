@@ -25,6 +25,14 @@ function initialize() {
   // メッセージリスナー
   chrome.runtime.onMessage.addListener(handleRuntimeMessage);
 
+  // ページ読み込み完了後に最小化状態で自動表示
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', showMinimizedPopupAutomatically);
+  } else {
+    // すでに読み込み完了している場合は即座に実行
+    setTimeout(showMinimizedPopupAutomatically, 500); // 少し遅延させて安定化
+  }
+
   console.log('Text-Simpler: Simple content script initialized');
 }
 
@@ -66,6 +74,11 @@ function handleTextSelection() {
       if (isPopupVisible && floatingPopup) {
         updateFloatingSelectedTextPreview();
         updateFloatingTransformButton();
+
+        // 最小化状態の場合はタイトルも更新
+        if (floatingState.isMinimized) {
+          updateMinimizedTitle();
+        }
 
         // デバッグログ（選択が変更された場合のみ）
         if (selectedText !== previousText) {
@@ -419,11 +432,13 @@ function handleUndoAllTransforms(request, sendResponse) {
 /**
  * フローティングポップアップの切り替え
  */
-function handleToggleFloatingPopup(request, sendResponse) {
+async function handleToggleFloatingPopup(request, sendResponse) {
   try {
     if (isPopupVisible) {
-      hideFloatingPopup();
+      await hideFloatingPopup();
     } else {
+      // ユーザーが意図的に表示したのでフラグをリセット
+      await setStorageValue('popupUserClosed', false);
       showFloatingPopup();
     }
 
@@ -463,10 +478,14 @@ function showFloatingPopup() {
 /**
  * フローティングポップアップを非表示
  */
-function hideFloatingPopup() {
+async function hideFloatingPopup() {
   if (floatingPopup) {
     floatingPopup.style.display = 'none';
     isPopupVisible = false;
+
+    // ユーザーが閉じたことを記録（次回自動表示しない）
+    await setStorageValue('popupUserClosed', true);
+    console.log('Text-Simpler: Popup closed by user, auto-display disabled');
   }
 }
 
@@ -705,22 +724,53 @@ let floatingState = {
  */
 function toggleMinimize() {
   const main = floatingPopup.querySelector('#ts-popup-main');
-  const footer = floatingPopup.querySelector('.ts-popup-footer');
   const minimizeBtn = floatingPopup.querySelector('#ts-minimize-btn');
 
   floatingState.isMinimized = !floatingState.isMinimized;
 
   if (floatingState.isMinimized) {
-    main.style.display = 'none';
-    footer.style.display = 'none';
+    // 最小化状態
+    if (main) main.style.display = 'none';
     minimizeBtn.textContent = '+';
-    minimizeBtn.title = '最大化';
+    minimizeBtn.title = '展開';
     floatingPopup.style.height = 'auto';
+    floatingPopup.style.width = '200px'; // 最小化時は幅を狭く
+
+    // 最小化状態でのタイトル更新
+    updateMinimizedTitle();
   } else {
-    main.style.display = 'block';
-    footer.style.display = 'block';
+    // 展開状態
+    if (main) main.style.display = 'block';
     minimizeBtn.textContent = '−';
     minimizeBtn.title = '最小化';
+    floatingPopup.style.width = '320px'; // 元の幅に戻す
+
+    // 元のタイトルに戻す
+    const title = floatingPopup.querySelector('.ts-popup-header h1');
+    if (title) {
+      title.textContent = 'Text-Simpler';
+    }
+  }
+}
+
+/**
+ * 最小化状態でのタイトル更新
+ */
+function updateMinimizedTitle() {
+  const title = floatingPopup.querySelector('.ts-popup-header h1');
+  if (!title) return;
+
+  if (currentSelectedText && currentSelectedText.length > 0) {
+    // 選択テキストがある場合
+    const truncated = currentSelectedText.length > 15
+      ? currentSelectedText.substring(0, 15) + '...'
+      : currentSelectedText;
+    title.textContent = `📝 ${truncated}`;
+    title.style.fontSize = '13px'; // 少し小さく
+  } else {
+    // 選択テキストがない場合
+    title.textContent = '📝 テキストを選択';
+    title.style.fontSize = '13px';
   }
 }
 
@@ -925,6 +975,78 @@ function hideFloatingError() {
 }
 
 
+
+/**
+ * 最小化状態でポップアップを自動表示
+ */
+async function showMinimizedPopupAutomatically() {
+  try {
+    // すでに表示されている場合はスキップ
+    if (isPopupVisible && floatingPopup) {
+      return;
+    }
+
+    // ユーザーが明示的に閉じた場合は表示しない
+    const userClosed = await getStorageValue('popupUserClosed', false);
+    if (userClosed) {
+      console.log('Text-Simpler: Popup auto-display skipped (user closed)');
+      return;
+    }
+
+    // フローティングポップアップを作成・表示
+    showFloatingPopup();
+
+    // 最小化状態にする
+    if (floatingPopup) {
+      floatingState.isMinimized = true;
+      const main = floatingPopup.querySelector('#ts-popup-main');
+      const minimizeBtn = floatingPopup.querySelector('#ts-minimize-btn');
+
+      if (main) {
+        main.style.display = 'none';
+      }
+      if (minimizeBtn) {
+        minimizeBtn.textContent = '+';
+        minimizeBtn.title = '展開';
+      }
+
+      // 最小化状態用のスタイル調整
+      floatingPopup.style.height = 'auto';
+      floatingPopup.style.width = '200px'; // 最小化時は幅を狭く
+
+      // 最小化状態のタイトル更新
+      updateMinimizedTitle();
+
+      console.log('Text-Simpler: Auto-displayed minimized popup');
+    }
+  } catch (error) {
+    console.error('Text-Simpler: Auto-display error:', error);
+  }
+}
+
+/**
+ * ストレージから値を取得
+ */
+async function getStorageValue(key, defaultValue) {
+  try {
+    const result = await chrome.storage.local.get([key]);
+    return result[key] !== undefined ? result[key] : defaultValue;
+  } catch (error) {
+    console.error('Storage get error:', error);
+    return defaultValue;
+  }
+}
+
+/**
+ * ストレージに値を保存
+ */
+async function setStorageValue(key, value) {
+  try {
+    await chrome.storage.local.set({ [key]: value });
+  } catch (error) {
+    console.error('Storage set error:', error);
+  }
+}
 
 // 初期化を実行
 initialize();
