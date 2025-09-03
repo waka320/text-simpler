@@ -614,4 +614,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   return true;
 });
 
+// アクションクリック時の処理
+chrome.action.onClicked.addListener(async (tab) => {
+  try {
+    // コンテンツスクリプトにフローティングポップアップの表示を指示
+    await chrome.tabs.sendMessage(tab.id, {
+      action: 'toggleFloatingPopup'
+    });
+  } catch (error) {
+    console.error('Action click error:', error);
+  }
+});
+
 console.log('Text-Simpler: Simple background script loaded');

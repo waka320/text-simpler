@@ -150,3 +150,379 @@
         border-bottom-color: rgba(220, 53, 69, 0.8);
     }
 }
+
+/* ============================================================================
+ * フローティングポップアップスタイル
+ * ============================================================================ */
+
+#text-simpler-floating-popup {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    color: #333 !important;
+    box-sizing: border-box !important;
+}
+
+#text-simpler-floating-popup * {
+    box-sizing: border-box !important;
+}
+
+/* ポップアップコンテナ */
+.ts-popup-container {
+    background: white !important;
+    border-radius: 6px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ヘッダー */
+.ts-popup-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 8px 12px !important;
+    background: #4a5568 !important;
+    color: white !important;
+    cursor: move !important;
+}
+
+.ts-popup-header h1 {
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+    color: white !important;
+}
+
+.ts-header-controls {
+    display: flex !important;
+    gap: 4px !important;
+}
+
+.ts-control-btn {
+    background: none !important;
+    border: none !important;
+    color: white !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    padding: 4px 8px !important;
+    border-radius: 3px !important;
+    transition: background-color 0.2s !important;
+    line-height: 1 !important;
+    min-width: 24px !important;
+    height: 24px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.ts-control-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* メインコンテンツ */
+.ts-popup-main {
+    padding: 8px !important;
+}
+
+/* セクション */
+.ts-popup-main section {
+    margin-bottom: 12px !important;
+}
+
+.ts-popup-main section:last-child {
+    margin-bottom: 0 !important;
+}
+
+.ts-popup-main h2,
+.ts-popup-main h3 {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    margin: 0 0 4px 0 !important;
+    color: #333 !important;
+}
+
+/* モード選択 */
+.ts-mode-tabs {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 4px !important;
+    margin-bottom: 8px !important;
+}
+
+.ts-mode-tab {
+    padding: 6px 10px !important;
+    border: 1px solid #ccc !important;
+    background: #fff !important;
+    color: #333 !important;
+    font-size: 12px !important;
+    cursor: pointer !important;
+    border-radius: 3px !important;
+    transition: all 0.2s !important;
+    text-align: center !important;
+    font-family: inherit !important;
+}
+
+.ts-mode-tab:hover {
+    background: #f5f5f5 !important;
+    border-color: #999 !important;
+}
+
+.ts-mode-tab.ts-active {
+    background: #333 !important;
+    color: white !important;
+    border-color: #333 !important;
+}
+
+/* 学年レベル選択 */
+.ts-grade-section {
+    background: #f9f9f9 !important;
+    padding: 8px !important;
+    border-radius: 3px !important;
+    border: 1px solid #ddd !important;
+}
+
+.ts-grade-options {
+    display: flex !important;
+    gap: 12px !important;
+}
+
+.ts-grade-option {
+    display: flex !important;
+    align-items: center !important;
+    cursor: pointer !important;
+    font-size: 12px !important;
+    color: #333 !important;
+}
+
+.ts-grade-option input[type="radio"] {
+    margin-right: 4px !important;
+}
+
+/* 選択テキストプレビュー */
+.ts-selected-text-preview {
+    background: #f9f9f9 !important;
+    border: 1px solid #ddd !important;
+    border-radius: 3px !important;
+    padding: 8px !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    max-height: 60px !important;
+    overflow-y: auto !important;
+    color: #333 !important;
+    font-weight: 500 !important;
+}
+
+.ts-selected-text-preview.ts-has-text {
+    background: #fff !important;
+    border: 2px solid #333 !important;
+    color: #000 !important;
+    font-weight: 600 !important;
+}
+
+.ts-selected-text-preview.ts-no-text {
+    color: #999 !important;
+    font-style: italic !important;
+    font-weight: normal !important;
+}
+
+/* アクションボタン */
+.ts-action-section {
+    display: flex !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+}
+
+.ts-transform-btn,
+.ts-undo-all-btn {
+    flex: 1 !important;
+    padding: 10px 16px !important;
+    border: none !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+    min-width: 100px !important;
+    font-family: inherit !important;
+}
+
+.ts-transform-btn {
+    background: #333 !important;
+    color: white !important;
+}
+
+.ts-transform-btn:hover:not(:disabled) {
+    background: #555 !important;
+}
+
+.ts-transform-btn:disabled {
+    background: #ccc !important;
+    cursor: not-allowed !important;
+}
+
+.ts-undo-all-btn {
+    background: #ddd !important;
+    color: #333 !important;
+    font-size: 11px !important;
+    flex-basis: 100% !important;
+    margin-top: 4px !important;
+    border: 1px solid #ccc !important;
+}
+
+.ts-undo-all-btn:hover {
+    background: #ccc !important;
+}
+
+/* 結果表示 */
+.ts-result-section {
+    background: #f9f9f9 !important;
+    border: 1px solid #ddd !important;
+    border-radius: 3px !important;
+    padding: 8px !important;
+}
+
+.ts-result-message {
+    color: #333 !important;
+    font-weight: 500 !important;
+    margin-bottom: 8px !important;
+    font-size: 12px !important;
+}
+
+.ts-result-actions {
+    display: flex !important;
+    gap: 8px !important;
+}
+
+.ts-copy-btn,
+.ts-clear-btn {
+    padding: 4px 8px !important;
+    border: 1px solid #ccc !important;
+    background: white !important;
+    color: #333 !important;
+    font-size: 11px !important;
+    cursor: pointer !important;
+    border-radius: 3px !important;
+    transition: all 0.2s !important;
+    font-family: inherit !important;
+}
+
+.ts-copy-btn:hover,
+.ts-clear-btn:hover {
+    background: #f0f0f0 !important;
+    border-color: #999 !important;
+}
+
+/* エラー表示 */
+.ts-error-section {
+    background: #f9f9f9 !important;
+    border: 1px solid #999 !important;
+    border-radius: 3px !important;
+    padding: 8px !important;
+}
+
+.ts-error-message {
+    color: #333 !important;
+    font-size: 12px !important;
+    line-height: 1.3 !important;
+    margin-bottom: 6px !important;
+    font-weight: 500 !important;
+}
+
+.ts-error-actions {
+    display: flex !important;
+    gap: 8px !important;
+}
+
+.ts-retry-btn,
+.ts-close-error-btn {
+    padding: 4px 8px !important;
+    border: 1px solid #999 !important;
+    background: white !important;
+    color: #333 !important;
+    font-size: 11px !important;
+    cursor: pointer !important;
+    border-radius: 3px !important;
+    transition: all 0.2s !important;
+    font-family: inherit !important;
+}
+
+.ts-retry-btn:hover {
+    background: #333 !important;
+    color: white !important;
+}
+
+.ts-close-error-btn:hover {
+    background: #f0f0f0 !important;
+}
+
+/* ローディング */
+.ts-loading-section {
+    text-align: center !important;
+    padding: 20px !important;
+}
+
+.ts-loading-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.ts-spinner {
+    width: 20px !important;
+    height: 20px !important;
+    border: 2px solid #f0f0f0 !important;
+    border-top: 2px solid #333 !important;
+    border-radius: 50% !important;
+    animation: ts-spin 1s linear infinite !important;
+}
+
+@keyframes ts-spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.ts-loading-message {
+    font-size: 12px !important;
+    color: #666 !important;
+}
+
+/* フッター */
+.ts-popup-footer {
+    padding: 6px 8px !important;
+    background: #f9f9f9 !important;
+    border-top: 1px solid #ddd !important;
+}
+
+.ts-status-info {
+    text-align: center !important;
+}
+
+#ts-status-text {
+    font-size: 11px !important;
+    color: #666 !important;
+}
+
+/* スクロールバー */
+.ts-selected-text-preview::-webkit-scrollbar {
+    width: 6px !important;
+}
+
+.ts-selected-text-preview::-webkit-scrollbar-track {
+    background: #f1f1f1 !important;
+    border-radius: 3px !important;
+}
+
+.ts-selected-text-preview::-webkit-scrollbar-thumb {
+    background: #c1c1c1 !important;
+    border-radius: 3px !important;
+}
+
+.ts-selected-text-preview::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8 !important;
+}
