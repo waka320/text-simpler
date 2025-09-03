@@ -20,7 +20,6 @@
         <main class="popup-main">
             <!-- モード選択 -->
             <section class="mode-section">
-                <h2>変換モード</h2>
                 <div class="mode-tabs">
                     <button class="mode-tab active" data-mode="simplify">わかりやすく</button>
                     <button class="mode-tab" data-mode="concretize">具体化</button>
@@ -48,24 +47,9 @@
                 </div>
             </section>
 
-            <!-- 対象テキスト選択 -->
-            <section class="target-section">
-                <h3>変換対象</h3>
-                <div class="target-options">
-                    <label class="target-option">
-                        <input type="radio" name="targetType" value="selection" checked>
-                        <span>選択テキスト</span>
-                    </label>
-                    <label class="target-option">
-                        <input type="radio" name="targetType" value="page">
-                        <span>ページ全体</span>
-                    </label>
-                </div>
-            </section>
 
             <!-- 選択テキスト表示 -->
             <section class="selected-text-section">
-                <h3>選択中のテキスト</h3>
                 <div class="selected-text-preview" id="selectedTextPreview">
                     テキストを選択してください
                 </div>
@@ -125,13 +109,6 @@
                 </div>
             </section>
         </main>
-
-        <!-- フッター -->
-        <footer class="popup-footer">
-            <div class="status-info">
-                <span id="statusText">準備完了</span>
-            </div>
-        </footer>
     </div>
 
     <script src="../js/popup.js"></script>

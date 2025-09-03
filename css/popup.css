@@ -19,8 +19,8 @@ body {
 
 /* ポップアップコンテナ */
 .popup-container {
-    width: 380px;
-    max-height: 600px;
+    width: 320px;
+    max-height: 500px;
     overflow-y: auto;
 }
 
@@ -29,14 +29,14 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 8px 12px;
+    background: #4a5568;
     color: white;
 }
 
 .popup-header h1 {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 500;
 }
 
 .settings-btn {
@@ -56,12 +56,12 @@ body {
 
 /* メインコンテンツ */
 .popup-main {
-    padding: 16px;
+    padding: 8px;
 }
 
 /* セクション */
 .popup-main section {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .popup-main section:last-child {
@@ -70,10 +70,10 @@ body {
 
 .popup-main h2,
 .popup-main h3 {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #555;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: #333;
 }
 
 /* モード選択 */
@@ -85,33 +85,33 @@ body {
 }
 
 .mode-tab {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    background: #f8f9fa;
-    color: #666;
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    background: #fff;
+    color: #333;
     font-size: 12px;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 3px;
     transition: all 0.2s;
 }
 
 .mode-tab:hover {
-    background: #e9ecef;
-    border-color: #ccc;
+    background: #f5f5f5;
+    border-color: #999;
 }
 
 .mode-tab.active {
-    background: #667eea;
+    background: #333;
     color: white;
-    border-color: #667eea;
+    border-color: #333;
 }
 
 /* 学年レベル選択 */
 .grade-section {
-    background: #f8f9fa;
-    padding: 12px;
-    border-radius: 6px;
-    border: 1px solid #e9ecef;
+    background: #f9f9f9;
+    padding: 8px;
+    border-radius: 3px;
+    border: 1px solid #ddd;
 }
 
 .grade-options {
@@ -130,52 +130,35 @@ body {
     margin-right: 4px;
 }
 
-/* 対象選択 */
-.target-options {
-    display: flex;
-    gap: 16px;
-}
-
-.target-option {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.target-option input[type="radio"] {
-    margin-right: 4px;
-}
+/* 対象選択（シンプル表示のみ） */
 
 /* 選択テキストプレビュー */
 .selected-text-preview {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 4px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 3px;
     padding: 8px;
     font-size: 12px;
-    line-height: 1.3;
-    max-height: 80px;
+    line-height: 1.4;
+    max-height: 60px;
     overflow-y: auto;
-    color: #666;
+    color: #333;
+    font-weight: 500;
 }
 
 .selected-text-preview.has-text {
-    background: #e8f5e8;
-    border-color: #c3e6c3;
-    color: #2d5a2d;
+    background: #fff;
+    border: 2px solid #333;
+    color: #000;
+    font-weight: 600;
 }
 
-.selected-text-preview.page-mode {
-    background: #e8f0ff;
-    border-color: #b3d1ff;
-    color: #1a4480;
-    font-style: italic;
-}
+
 
 .selected-text-preview.no-text {
     color: #999;
     font-style: italic;
+    font-weight: normal;
 }
 
 /* アクションボタン */
@@ -200,12 +183,12 @@ body {
 }
 
 .transform-btn {
-    background: #667eea;
+    background: #333;
     color: white;
 }
 
 .transform-btn:hover:not(:disabled) {
-    background: #5a6fd8;
+    background: #555;
 }
 
 .transform-btn:disabled {
@@ -214,50 +197,51 @@ body {
 }
 
 .cancel-btn {
-    background: #6c757d;
+    background: #999;
     color: white;
 }
 
 .cancel-btn:hover {
-    background: #5a6268;
+    background: #777;
 }
 
 .undo-all-btn {
-    background: #ffc107;
-    color: #212529;
-    font-size: 12px;
+    background: #ddd;
+    color: #333;
+    font-size: 11px;
     flex-basis: 100%;
     margin-top: 4px;
+    border: 1px solid #ccc;
 }
 
 .undo-all-btn:hover {
-    background: #e0a800;
+    background: #ccc;
 }
 
 /* 結果表示 */
 .result-section {
-    background: #e8f5e8;
-    border: 1px solid #c3e6c3;
-    border-radius: 6px;
-    padding: 12px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    padding: 8px;
 }
 
 .result-message {
-    color: #2d5a2d;
+    color: #333;
     font-weight: 500;
-    margin-bottom: 12px;
-    font-size: 13px;
+    margin-bottom: 8px;
+    font-size: 12px;
 }
 
 .result-info {
     background: white;
-    border: 1px solid #c3e6c3;
-    border-radius: 4px;
-    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    padding: 6px;
     font-size: 11px;
-    line-height: 1.4;
-    margin-bottom: 8px;
-    color: #495057;
+    line-height: 1.3;
+    margin-bottom: 6px;
+    color: #666;
 }
 
 .result-info p {
@@ -281,41 +265,40 @@ body {
 
 .copy-btn,
 .clear-btn {
-    padding: 6px 12px;
-    border: 1px solid #ddd;
+    padding: 4px 8px;
+    border: 1px solid #ccc;
     background: white;
-    color: #666;
-    font-size: 12px;
+    color: #333;
+    font-size: 11px;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 3px;
     transition: all 0.2s;
 }
 
 .copy-btn:hover {
-    background: #e8f5e8;
-    border-color: #c3e6c3;
-    color: #2d5a2d;
+    background: #f0f0f0;
+    border-color: #999;
 }
 
 .clear-btn:hover {
-    background: #ffe8e8;
-    border-color: #ffb3b3;
-    color: #802d2d;
+    background: #f0f0f0;
+    border-color: #999;
 }
 
 /* エラー表示 */
 .error-section {
-    background: #ffe8e8;
-    border: 1px solid #ffb3b3;
-    border-radius: 6px;
-    padding: 12px;
+    background: #f9f9f9;
+    border: 1px solid #999;
+    border-radius: 3px;
+    padding: 8px;
 }
 
 .error-message {
-    color: #802d2d;
+    color: #333;
     font-size: 12px;
-    line-height: 1.4;
-    margin-bottom: 8px;
+    line-height: 1.3;
+    margin-bottom: 6px;
+    font-weight: 500;
 }
 
 .error-actions {
@@ -325,23 +308,23 @@ body {
 
 .retry-btn,
 .close-error-btn {
-    padding: 6px 12px;
-    border: 1px solid #ff6b6b;
+    padding: 4px 8px;
+    border: 1px solid #999;
     background: white;
-    color: #ff6b6b;
-    font-size: 12px;
+    color: #333;
+    font-size: 11px;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 3px;
     transition: all 0.2s;
 }
 
 .retry-btn:hover {
-    background: #ff6b6b;
+    background: #333;
     color: white;
 }
 
 .close-error-btn:hover {
-    background: #f8f9fa;
+    background: #f0f0f0;
 }
 
 /* ローディング */
@@ -358,10 +341,10 @@ body {
 }
 
 .spinner {
-    width: 24px;
-    height: 24px;
-    border: 2px solid #f3f3f3;
-    border-top: 2px solid #667eea;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f0f0f0;
+    border-top: 2px solid #333;
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -383,9 +366,9 @@ body {
 
 /* フッター */
 .popup-footer {
-    padding: 12px 16px;
-    background: #f8f9fa;
-    border-top: 1px solid #e9ecef;
+    padding: 6px 8px;
+    background: #f9f9f9;
+    border-top: 1px solid #ddd;
 }
 
 .status-info {
