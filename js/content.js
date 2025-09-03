@@ -14,6 +14,9 @@ let isPopupVisible = false;
 
 // 初期化
 function initialize() {
+  // マーカー用のスタイルシートを確実に注入
+  ensureMarkerStyles();
+
   // 選択テキストの監視（より包括的に）
   document.addEventListener('mouseup', handleTextSelection);
   document.addEventListener('keyup', handleTextSelection);
@@ -312,6 +315,9 @@ function applyMarkerByTextSearch(originalText, transformedText) {
  * マーカー要素を作成
  */
 function createMarkerElement(transformedText, originalText, mode) {
+  // マーカー用のスタイルシートを確実に注入
+  ensureMarkerStyles();
+
   const marker = document.createElement('span');
   marker.className = `text-simpler-marker text-simpler-${mode}`;
   marker.id = 'text-simpler-marker-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
@@ -322,12 +328,349 @@ function createMarkerElement(transformedText, originalText, mode) {
   marker.setAttribute('data-mode', mode);
   marker.setAttribute('title', 'ダブルクリックで元に戻す');
 
+  // インラインスタイルで絶対的なスタイルを適用
+  applyAbsoluteMarkerStyle(marker, mode);
+
   // ダブルクリックで元に戻すイベントリスナー
   marker.addEventListener('dblclick', function () {
     restoreMarker(this);
   });
 
+  // ホバー時のツールチップ機能
+  setupMarkerTooltip(marker);
+
   return marker;
+}
+
+/**
+ * マーカー用のスタイルシートを確実に注入
+ */
+function ensureMarkerStyles() {
+  // すでに注入されている場合はスキップ
+  if (document.getElementById('text-simpler-marker-styles')) {
+    return;
+  }
+
+  const style = document.createElement('style');
+  style.id = 'text-simpler-marker-styles';
+  style.textContent = `
+    /* Text-Simpler マーカースタイル - 絶対的なスタイル */
+    .text-simpler-marker {
+      display: inline !important;
+      position: relative !important;
+      z-index: 1000 !important;
+      font-family: inherit !important;
+      font-size: inherit !important;
+      font-weight: inherit !important;
+      line-height: inherit !important;
+      text-decoration: none !important;
+      text-transform: none !important;
+      letter-spacing: normal !important;
+      word-spacing: normal !important;
+      text-shadow: none !important;
+      box-shadow: none !important;
+      border: none !important;
+      outline: none !important;
+      margin: 0 !important;
+      padding: 2px 4px !important;
+      border-radius: 3px !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+      vertical-align: baseline !important;
+      white-space: normal !important;
+      word-wrap: normal !important;
+      overflow-wrap: normal !important;
+    }
+
+    /* モード別の色設定 */
+    .text-simpler-lexicon {
+      background-color: rgba(255, 235, 59, 0.3) !important; /* 黄色系 - 語・記号の意味 */
+      color: inherit !important;
+    }
+
+    .text-simpler-load {
+      background-color: rgba(76, 175, 80, 0.3) !important; /* 緑色系 - 情報量削減 */
+      color: inherit !important;
+    }
+
+    .text-simpler-cohesion {
+      background-color: rgba(33, 150, 243, 0.3) !important; /* 青色系 - つながり補強 */
+      color: inherit !important;
+    }
+
+    /* 後方互換性 */
+    .text-simpler-simplify {
+      background-color: rgba(255, 193, 7, 0.3) !important;
+      color: inherit !important;
+    }
+
+    .text-simpler-concretize {
+      background-color: rgba(156, 39, 176, 0.3) !important;
+      color: inherit !important;
+    }
+
+    .text-simpler-abstract {
+      background-color: rgba(255, 87, 34, 0.3) !important;
+      color: inherit !important;
+    }
+
+    .text-simpler-grade {
+      background-color: rgba(96, 125, 139, 0.3) !important;
+      color: inherit !important;
+    }
+
+    /* ホバー効果 */
+    .text-simpler-marker:hover {
+      background-color: rgba(0, 0, 0, 0.1) !important;
+      transform: none !important;
+      filter: brightness(0.9) !important;
+    }
+
+    /* フォーカス状態 */
+    .text-simpler-marker:focus {
+      outline: 2px solid rgba(0, 123, 255, 0.5) !important;
+      outline-offset: 1px !important;
+    }
+
+    /* ツールチップスタイル */
+    .text-simpler-tooltip {
+      position: absolute !important;
+      z-index: 10001 !important;
+      background-color: rgba(0, 0, 0, 0.9) !important;
+      color: white !important;
+      padding: 6px 10px !important;
+      border-radius: 4px !important;
+      font-size: 12px !important;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+      font-weight: 500 !important;
+      line-height: 1.2 !important;
+      white-space: nowrap !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+      pointer-events: none !important;
+      opacity: 0 !important;
+      transform: translateY(-5px) !important;
+      transition: opacity 0.2s ease, transform 0.2s ease !important;
+      border: none !important;
+      margin: 0 !important;
+      text-decoration: none !important;
+      text-transform: none !important;
+      letter-spacing: normal !important;
+      word-spacing: normal !important;
+      text-shadow: none !important;
+      text-align: center !important;
+    }
+
+    .text-simpler-tooltip.show {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+    }
+
+    /* ツールチップの矢印 */
+    .text-simpler-tooltip::after {
+      content: '' !important;
+      position: absolute !important;
+      top: 100% !important;
+      left: 50% !important;
+      margin-left: -5px !important;
+      border: 5px solid transparent !important;
+      border-top-color: rgba(0, 0, 0, 0.9) !important;
+      border-bottom: none !important;
+    }
+  `;
+
+  // headまたはbodyに追加
+  const target = document.head || document.body || document.documentElement;
+  if (target) {
+    target.appendChild(style);
+  }
+}
+
+/**
+ * 絶対的なインラインスタイルを適用
+ */
+function applyAbsoluteMarkerStyle(marker, mode) {
+  // モード別の背景色
+  const modeColors = {
+    'lexicon': 'rgba(255, 235, 59, 0.3)', // 黄色系 - 語・記号の意味
+    'load': 'rgba(76, 175, 80, 0.3)',     // 緑色系 - 情報量削減
+    'cohesion': 'rgba(33, 150, 243, 0.3)', // 青色系 - つながり補強
+    // 後方互換性
+    'simplify': 'rgba(255, 193, 7, 0.3)',
+    'concretize': 'rgba(156, 39, 176, 0.3)',
+    'abstract': 'rgba(255, 87, 34, 0.3)',
+    'grade': 'rgba(96, 125, 139, 0.3)'
+  };
+
+  const backgroundColor = modeColors[mode] || modeColors['lexicon'];
+
+  // 絶対的なインラインスタイル
+  marker.style.cssText = `
+    display: inline !important;
+    position: relative !important;
+    z-index: 1000 !important;
+    background-color: ${backgroundColor} !important;
+    color: inherit !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    font-weight: inherit !important;
+    line-height: inherit !important;
+    text-decoration: none !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    word-spacing: normal !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+    margin: 0 !important;
+    padding: 2px 4px !important;
+    border-radius: 3px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    vertical-align: baseline !important;
+    white-space: normal !important;
+    word-wrap: normal !important;
+    overflow-wrap: normal !important;
+  `;
+}
+
+/**
+ * マーカーにツールチップ機能を設定
+ */
+function setupMarkerTooltip(marker) {
+  let tooltip = null;
+  let showTimeout = null;
+  let hideTimeout = null;
+
+  // マウスオーバー時
+  marker.addEventListener('mouseenter', function (e) {
+    // 既存のタイムアウトをクリア
+    if (hideTimeout) {
+      clearTimeout(hideTimeout);
+      hideTimeout = null;
+    }
+
+    // 少し遅延してツールチップを表示
+    showTimeout = setTimeout(() => {
+      tooltip = createTooltip('ダブルクリックで元に戻す');
+      document.body.appendChild(tooltip);
+      positionTooltip(tooltip, marker);
+
+      // 少し遅延してアニメーション開始
+      setTimeout(() => {
+        tooltip.classList.add('show');
+      }, 10);
+    }, 300); // 300ms遅延
+  });
+
+  // マウスアウト時
+  marker.addEventListener('mouseleave', function (e) {
+    // 表示タイムアウトをクリア
+    if (showTimeout) {
+      clearTimeout(showTimeout);
+      showTimeout = null;
+    }
+
+    // ツールチップが存在する場合は非表示にする
+    if (tooltip) {
+      tooltip.classList.remove('show');
+
+      hideTimeout = setTimeout(() => {
+        if (tooltip && tooltip.parentNode) {
+          tooltip.parentNode.removeChild(tooltip);
+        }
+        tooltip = null;
+        hideTimeout = null;
+      }, 200); // アニメーション時間に合わせて遅延
+    }
+  });
+
+  // ダブルクリック時はツールチップを即座に非表示
+  marker.addEventListener('dblclick', function (e) {
+    if (showTimeout) {
+      clearTimeout(showTimeout);
+      showTimeout = null;
+    }
+    if (hideTimeout) {
+      clearTimeout(hideTimeout);
+      hideTimeout = null;
+    }
+    if (tooltip && tooltip.parentNode) {
+      tooltip.parentNode.removeChild(tooltip);
+      tooltip = null;
+    }
+  });
+}
+
+/**
+ * ツールチップ要素を作成
+ */
+function createTooltip(text) {
+  const tooltip = document.createElement('div');
+  tooltip.className = 'text-simpler-tooltip';
+  tooltip.textContent = text;
+
+  // 絶対的なスタイルを適用
+  tooltip.style.cssText = `
+    position: absolute !important;
+    z-index: 10001 !important;
+    background-color: rgba(0, 0, 0, 0.9) !important;
+    color: white !important;
+    padding: 6px 10px !important;
+    border-radius: 4px !important;
+    font-size: 12px !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-weight: 500 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    transform: translateY(-5px) !important;
+    transition: opacity 0.2s ease, transform 0.2s ease !important;
+    border: none !important;
+    margin: 0 !important;
+    text-decoration: none !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    word-spacing: normal !important;
+    text-shadow: none !important;
+    text-align: center !important;
+  `;
+
+  return tooltip;
+}
+
+/**
+ * ツールチップの位置を調整
+ */
+function positionTooltip(tooltip, marker) {
+  const markerRect = marker.getBoundingClientRect();
+  const tooltipRect = tooltip.getBoundingClientRect();
+
+  // マーカーの上部中央に配置
+  let left = markerRect.left + (markerRect.width / 2) - (tooltipRect.width / 2);
+  let top = markerRect.top - tooltipRect.height - 8; // 8pxの余白
+
+  // 画面外に出ないように調整
+  const padding = 10;
+  if (left < padding) {
+    left = padding;
+  } else if (left + tooltipRect.width > window.innerWidth - padding) {
+    left = window.innerWidth - tooltipRect.width - padding;
+  }
+
+  if (top < padding) {
+    // 上に表示できない場合は下に表示
+    top = markerRect.bottom + 8;
+  }
+
+  // スクロール位置を考慮
+  left += window.scrollX;
+  top += window.scrollY;
+
+  tooltip.style.left = left + 'px';
+  tooltip.style.top = top + 'px';
 }
 
 /**
@@ -337,7 +680,7 @@ function getCurrentMode() {
   if (floatingState && floatingState.mode) {
     return floatingState.mode;
   }
-  return 'simplify'; // デフォルト
+  return 'lexicon'; // デフォルト
 }
 
 /**
@@ -496,11 +839,210 @@ function createFloatingPopup() {
   const popup = document.createElement('div');
   popup.id = 'text-simpler-floating-popup';
   popup.innerHTML = `
+    <style>
+      .ts-mode-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 4px;
+        margin-bottom: 8px;
+      }
+      .ts-mode-tab {
+        padding: 8px 6px;
+        border: 1px solid #ccc;
+        background: #fff;
+        color: #333;
+        font-size: 11px;
+        cursor: pointer;
+        border-radius: 3px;
+        transition: all 0.2s;
+        text-align: center;
+        line-height: 1.2;
+      }
+      .ts-mode-tab:hover {
+        background: #f5f5f5;
+        border-color: #999;
+      }
+      .ts-mode-tab.ts-active {
+        background: #333;
+        color: white;
+        border-color: #333;
+      }
+      .ts-grade-dropdown select {
+        width: 100%;
+        padding: 6px 8px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        background: white;
+        font-size: 12px;
+        color: #333;
+        cursor: pointer;
+      }
+      .ts-grade-dropdown select:focus {
+        outline: none;
+        border-color: #333;
+      }
+      .ts-settings-btn {
+        background: none;
+        border: none;
+        color: #333;
+        font-size: 16px;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 24px;
+        min-height: 24px;
+      }
+      .ts-settings-btn:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+        transform: scale(1.1);
+      }
+      .ts-settings-icon {
+        font-size: 16px;
+        line-height: 1;
+      }
+      .ts-header-controls {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .ts-control-btn {
+        background: none;
+        border: none;
+        color: #333;
+        font-size: 14px;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 24px;
+        min-height: 24px;
+      }
+      .ts-control-btn:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+        transform: scale(1.05);
+      }
+      .ts-control-btn#ts-minimize-btn {
+        background: #007bff;
+        color: white;
+        border: 1px solid #007bff;
+        font-weight: 600;
+        font-size: 16px;
+        min-width: 28px;
+        min-height: 28px;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+      }
+      .ts-control-btn#ts-minimize-btn:hover {
+        background: #0056b3;
+        border-color: #0056b3;
+        transform: scale(1.1);
+        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.4);
+      }
+      /* 最小化状態の「＋」ボタンを特別に目立たせる */
+      .ts-control-btn#ts-minimize-btn[title="展開"] {
+        background: #28a745;
+        border-color: #28a745;
+        box-shadow: 0 2px 6px rgba(40, 167, 69, 0.4);
+        animation: pulse 2s infinite;
+      }
+      .ts-control-btn#ts-minimize-btn[title="展開"]:hover {
+        background: #218838;
+        border-color: #218838;
+        box-shadow: 0 4px 10px rgba(40, 167, 69, 0.6);
+        animation: none;
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .ts-api-key-guide {
+        background: #fff3cd;
+        color: #856404;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 12px;
+        border: 1px solid #ffeaa7;
+        box-shadow: 0 2px 4px rgba(255, 193, 7, 0.1);
+      }
+      .ts-guide-content {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .ts-guide-icon {
+        font-size: 18px;
+        flex-shrink: 0;
+        color: #856404;
+      }
+      .ts-guide-text {
+        flex: 1;
+      }
+      .ts-guide-text h4 {
+        margin: 0 0 2px 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: #856404;
+      }
+      .ts-guide-text p {
+        margin: 0;
+        font-size: 11px;
+        color: #856404;
+        line-height: 1.2;
+        opacity: 0.8;
+      }
+      .ts-setup-btn {
+        background: #856404;
+        border: 1px solid #856404;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex-shrink: 0;
+      }
+      .ts-setup-btn:hover {
+        background: #6d5204;
+        border-color: #6d5204;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(133, 100, 4, 0.3);
+      }
+      .ts-popup-main {
+        padding: 8px;
+      }
+      .ts-popup-main section {
+        margin-bottom: 12px;
+      }
+      .ts-grade-section {
+        background: #f9f9f9;
+        padding: 8px;
+        border-radius: 3px;
+        border: 1px solid #ddd;
+      }
+    </style>
     <div class="ts-popup-container">
       <!-- ヘッダー（ドラッグハンドル） -->
       <header class="ts-popup-header" id="ts-popup-header">
         <h1>Text-Simpler</h1>
         <div class="ts-header-controls">
+          <button id="ts-settings-btn" class="ts-control-btn ts-settings-btn" title="設定" aria-label="設定">
+            <span class="ts-settings-icon">⚙️</span>
+          </button>
           <button id="ts-minimize-btn" class="ts-control-btn" title="最小化">−</button>
           <button id="ts-close-btn" class="ts-control-btn" title="閉じる">×</button>
         </div>
@@ -511,32 +1053,38 @@ function createFloatingPopup() {
         <!-- モード選択 -->
         <section class="ts-mode-section">
           <div class="ts-mode-tabs">
-            <button class="ts-mode-tab ts-active" data-mode="simplify">わかりやすく</button>
-            <button class="ts-mode-tab" data-mode="concretize">具体化</button>
-            <button class="ts-mode-tab" data-mode="abstract">抽象化</button>
-            <button class="ts-mode-tab" data-mode="grade">学年レベル</button>
+            <button class="ts-mode-tab ts-active" data-mode="lexicon">語・記号の意味がわからない</button>
+            <button class="ts-mode-tab" data-mode="load">情報量が多すぎる</button>
+            <button class="ts-mode-tab" data-mode="cohesion">文と文の関係がわからない</button>
           </div>
         </section>
 
         <!-- 学年レベル選択 -->
-        <section class="ts-grade-section" id="ts-grade-section" style="display: none;">
-          <h3>学年レベル</h3>
-          <div class="ts-grade-options">
-            <label class="ts-grade-option">
-              <input type="radio" name="ts-grade-level" value="elementary">
-              <span>小学生</span>
-            </label>
-            <label class="ts-grade-option">
-              <input type="radio" name="ts-grade-level" value="junior" checked>
-              <span>中学生</span>
-            </label>
-            <label class="ts-grade-option">
-              <input type="radio" name="ts-grade-level" value="senior">
-              <span>高校生</span>
-            </label>
+        <section class="ts-grade-section" id="ts-grade-section">
+          <div class="ts-grade-dropdown">
+            <select id="ts-grade-level-select" name="ts-grade-level">
+              <option value="none">学年レベル: なし</option>
+              <option value="university">学年レベル: 大学生</option>
+              <option value="senior">学年レベル: 高校生</option>
+              <option value="junior" selected>学年レベル: 中学生</option>
+              <option value="elementary">学年レベル: 小学生</option>
+              <option value="kindergarten">学年レベル: 幼稚園児</option>
+            </select>
           </div>
         </section>
 
+
+        <!-- APIキー設定案内 -->
+        <section class="ts-api-key-guide" id="ts-api-key-guide" style="display: none;">
+          <div class="ts-guide-content">
+            <div class="ts-guide-icon">🔑</div>
+            <div class="ts-guide-text">
+              <h4>APIキーを設定してください</h4>
+              <p>Gemini APIキーを設定すると、テキスト変換機能が利用できます</p>
+            </div>
+            <button id="ts-setup-api-btn" class="ts-setup-btn">設定</button>
+          </div>
+        </section>
 
         <!-- 選択テキスト表示 -->
         <section class="ts-selected-text-section">
@@ -594,7 +1142,7 @@ function applyFloatingPopupStyles(popup) {
     top: 20px;
     right: 20px;
     z-index: 10000;
-    width: 320px;
+    width: 420px;
     max-height: 500px;
     background: white;
     border: 1px solid #ccc;
@@ -622,6 +1170,11 @@ function initializeFloatingPopup() {
 
   // 初期状態の更新
   updateFloatingPopupUI();
+
+  // APIキーの状態をチェックして案内を表示
+  setTimeout(() => {
+    updateApiKeyGuideVisibility();
+  }, 100);
 }
 
 /**
@@ -673,6 +1226,10 @@ function initializeDragFunctionality() {
  * フローティングポップアップのイベントリスナー設定
  */
 function setupFloatingPopupEventListeners() {
+  // 設定ボタン
+  const settingsBtn = floatingPopup.querySelector('#ts-settings-btn');
+  settingsBtn.addEventListener('click', handleFloatingSettings);
+
   // 最小化ボタン
   const minimizeBtn = floatingPopup.querySelector('#ts-minimize-btn');
   minimizeBtn.addEventListener('click', toggleMinimize);
@@ -688,10 +1245,12 @@ function setupFloatingPopupEventListeners() {
   });
 
   // 学年レベル
-  const gradeOptions = floatingPopup.querySelectorAll('input[name="ts-grade-level"]');
-  gradeOptions.forEach(option => {
-    option.addEventListener('change', handleFloatingGradeLevelChange);
-  });
+  const gradeLevelSelect = floatingPopup.querySelector('#ts-grade-level-select');
+  gradeLevelSelect.addEventListener('change', handleFloatingGradeLevelChange);
+
+  // APIキー設定ボタン
+  const setupApiBtn = floatingPopup.querySelector('#ts-setup-api-btn');
+  setupApiBtn.addEventListener('click', handleFloatingSettings);
 
   // 変換ボタン
   const transformBtn = floatingPopup.querySelector('#ts-transform-btn');
@@ -712,7 +1271,7 @@ function setupFloatingPopupEventListeners() {
 
 // フローティングポップアップの状態管理
 let floatingState = {
-  mode: 'simplify',
+  mode: 'lexicon',
   gradeLevel: 'junior',
   isMinimized: false,
   isProcessing: false,
@@ -725,6 +1284,7 @@ let floatingState = {
 function toggleMinimize() {
   const main = floatingPopup.querySelector('#ts-popup-main');
   const minimizeBtn = floatingPopup.querySelector('#ts-minimize-btn');
+  const settingsBtn = floatingPopup.querySelector('#ts-settings-btn');
 
   floatingState.isMinimized = !floatingState.isMinimized;
 
@@ -734,7 +1294,12 @@ function toggleMinimize() {
     minimizeBtn.textContent = '+';
     minimizeBtn.title = '展開';
     floatingPopup.style.height = 'auto';
-    floatingPopup.style.width = '200px'; // 最小化時は幅を狭く
+    floatingPopup.style.width = '250px'; // 最小化時は幅を狭く
+
+    // 設定ボタンを非表示
+    if (settingsBtn) {
+      settingsBtn.style.display = 'none';
+    }
 
     // 最小化状態でのタイトル更新
     updateMinimizedTitle();
@@ -743,7 +1308,12 @@ function toggleMinimize() {
     if (main) main.style.display = 'block';
     minimizeBtn.textContent = '−';
     minimizeBtn.title = '最小化';
-    floatingPopup.style.width = '320px'; // 元の幅に戻す
+    floatingPopup.style.width = '420px'; // 元の幅に戻す
+
+    // 設定ボタンを表示
+    if (settingsBtn) {
+      settingsBtn.style.display = 'flex';
+    }
 
     // 元のタイトルに戻す
     const title = floatingPopup.querySelector('.ts-popup-header h1');
@@ -786,15 +1356,14 @@ function updateFloatingPopupUI() {
     tab.classList.toggle('ts-active', tab.dataset.mode === floatingState.mode);
   });
 
-  // 学年セクションの表示/非表示
-  const gradeSection = floatingPopup.querySelector('#ts-grade-section');
-  gradeSection.style.display = floatingState.mode === 'grade' ? 'block' : 'none';
-
   // 学年レベルの更新
-  const gradeOptions = floatingPopup.querySelectorAll('input[name="ts-grade-level"]');
-  gradeOptions.forEach(option => {
-    option.checked = option.value === floatingState.gradeLevel;
-  });
+  const gradeLevelSelect = floatingPopup.querySelector('#ts-grade-level-select');
+  if (gradeLevelSelect) {
+    gradeLevelSelect.value = floatingState.gradeLevel;
+  }
+
+  // APIキー設定案内の表示/非表示
+  updateApiKeyGuideVisibility();
 
   // 選択テキストプレビューの更新
   updateFloatingSelectedTextPreview();
@@ -829,12 +1398,36 @@ function updateFloatingSelectedTextPreview() {
  */
 function updateFloatingTransformButton() {
   const transformBtn = floatingPopup.querySelector('#ts-transform-btn');
-  const canTransform = !floatingState.isProcessing &&
-    currentSelectedText &&
-    currentSelectedText.length > 5;
 
-  transformBtn.disabled = !canTransform;
-  transformBtn.textContent = floatingState.isProcessing ? '変換中...' : '変換実行';
+  // APIキーの状態をチェック
+  chrome.runtime.sendMessage({
+    action: 'getSettings',
+    keys: ['geminiApiKey']
+  }, (response) => {
+    if (chrome.runtime.lastError) {
+      console.error('Failed to check API key status:', chrome.runtime.lastError);
+      return;
+    }
+
+    const hasApiKey = response && response.success &&
+      response.settings &&
+      response.settings.geminiApiKey &&
+      response.settings.geminiApiKey.trim().length > 0;
+
+    const canTransform = !floatingState.isProcessing &&
+      hasApiKey &&
+      currentSelectedText &&
+      currentSelectedText.length > 5;
+
+    transformBtn.disabled = !canTransform;
+    transformBtn.textContent = floatingState.isProcessing ? '変換中...' : '変換実行';
+
+    if (!hasApiKey) {
+      transformBtn.title = 'APIキーを設定してください';
+    } else {
+      transformBtn.title = '';
+    }
+  });
 }
 
 // イベントハンドラー関数群
@@ -919,6 +1512,67 @@ async function handleFloatingUndoAll() {
 }
 
 /**
+ * APIキー設定案内の表示/非表示を更新
+ */
+function updateApiKeyGuideVisibility() {
+  if (!floatingPopup) return;
+
+  const apiKeyGuide = floatingPopup.querySelector('#ts-api-key-guide');
+  const transformBtn = floatingPopup.querySelector('#ts-transform-btn');
+  const modeSection = floatingPopup.querySelector('.ts-mode-section');
+  const selectedTextSection = floatingPopup.querySelector('.ts-selected-text-section');
+  const actionSection = floatingPopup.querySelector('.ts-action-section');
+  const gradeSection = floatingPopup.querySelector('.ts-grade-section');
+
+  // APIキーの状態をチェック
+  chrome.runtime.sendMessage({
+    action: 'getSettings',
+    keys: ['geminiApiKey']
+  }, (response) => {
+    if (chrome.runtime.lastError) {
+      console.error('Failed to check API key status:', chrome.runtime.lastError);
+      return;
+    }
+
+    const hasApiKey = response && response.success &&
+      response.settings &&
+      response.settings.geminiApiKey &&
+      response.settings.geminiApiKey.trim().length > 0;
+
+    if (apiKeyGuide) {
+      apiKeyGuide.style.display = hasApiKey ? 'none' : 'block';
+    }
+
+    // APIキーがない場合は不要なセクションを非表示
+    if (modeSection) {
+      modeSection.style.display = hasApiKey ? 'block' : 'none';
+    }
+
+    if (selectedTextSection) {
+      selectedTextSection.style.display = hasApiKey ? 'block' : 'none';
+    }
+
+    if (actionSection) {
+      actionSection.style.display = hasApiKey ? 'block' : 'none';
+    }
+
+    if (gradeSection) {
+      gradeSection.style.display = hasApiKey ? 'block' : 'none';
+    }
+
+    if (transformBtn) {
+      // APIキーがない場合は変換ボタンを無効化
+      transformBtn.disabled = !hasApiKey || !currentSelectedText || currentSelectedText.length <= 5;
+      if (!hasApiKey) {
+        transformBtn.title = 'APIキーを設定してください';
+      } else {
+        transformBtn.title = '';
+      }
+    }
+  });
+}
+
+/**
  * 「全て元に戻す」ボタンの表示/非表示を更新
  */
 function updateUndoAllButtonVisibility() {
@@ -943,6 +1597,53 @@ function handleFloatingCloseError() {
   const statusText = floatingPopup.querySelector('#ts-status-text');
   if (statusText) {
     statusText.textContent = '準備完了';
+  }
+}
+
+/**
+ * フローティングポップアップの設定ボタンハンドラー
+ */
+function handleFloatingSettings() {
+  console.log('Settings button clicked, attempting to open options page...');
+
+  try {
+    // 方法1: background.jsを経由してオプションページを開く
+    chrome.runtime.sendMessage({
+      action: 'openOptionsPage'
+    }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.error('Runtime error:', chrome.runtime.lastError);
+        // フォールバック: 直接URLを開く
+        openOptionsPageDirectly();
+      } else if (response && response.success) {
+        console.log('Options page opened successfully via background');
+      } else {
+        console.error('Failed to open options page via background:', response);
+        openOptionsPageDirectly();
+      }
+    });
+  } catch (error) {
+    console.error('Error sending message to background:', error);
+    // フォールバック: 直接URLを開く
+    openOptionsPageDirectly();
+  }
+}
+
+/**
+ * 直接オプションページを開く（フォールバック）
+ */
+function openOptionsPageDirectly() {
+  try {
+    console.log('Opening options page directly...');
+    const optionsUrl = chrome.runtime.getURL('html/options.html');
+    console.log('Options URL:', optionsUrl);
+
+    // 新しいタブで開く
+    window.open(optionsUrl, '_blank');
+  } catch (error) {
+    console.error('Failed to open options page directly:', error);
+    // 最後の手段: ユーザーに手動で開くよう指示
+    alert('設定ページを開けませんでした。拡張機能の管理ページから手動で設定を開いてください。');
   }
 }
 
@@ -996,28 +1697,36 @@ async function showMinimizedPopupAutomatically() {
     // フローティングポップアップを作成・表示
     showFloatingPopup();
 
-    // 最小化状態にする
+    // 展開状態のままにする（デフォルトで展開）
     if (floatingPopup) {
-      floatingState.isMinimized = true;
+      floatingState.isMinimized = false;
       const main = floatingPopup.querySelector('#ts-popup-main');
       const minimizeBtn = floatingPopup.querySelector('#ts-minimize-btn');
 
       if (main) {
-        main.style.display = 'none';
+        main.style.display = 'block';
       }
       if (minimizeBtn) {
-        minimizeBtn.textContent = '+';
-        minimizeBtn.title = '展開';
+        minimizeBtn.textContent = '−';
+        minimizeBtn.title = '最小化';
       }
 
-      // 最小化状態用のスタイル調整
-      floatingPopup.style.height = 'auto';
-      floatingPopup.style.width = '200px'; // 最小化時は幅を狭く
+      // 展開状態用のスタイル調整
+      floatingPopup.style.width = '420px'; // 通常の幅
 
-      // 最小化状態のタイトル更新
-      updateMinimizedTitle();
+      // 設定ボタンを表示
+      const settingsBtn = floatingPopup.querySelector('#ts-settings-btn');
+      if (settingsBtn) {
+        settingsBtn.style.display = 'flex';
+      }
 
-      console.log('Text-Simpler: Auto-displayed minimized popup');
+      // 通常のタイトル
+      const title = floatingPopup.querySelector('.ts-popup-header h1');
+      if (title) {
+        title.textContent = 'Text-Simpler';
+      }
+
+      console.log('Text-Simpler: Auto-displayed expanded popup');
     }
   } catch (error) {
     console.error('Text-Simpler: Auto-display error:', error);

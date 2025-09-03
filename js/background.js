@@ -1,7 +1,15 @@
 /**
- * Text-Simpler Background Script (シンプル版)
+ * Text-Simpler Background Script (モジュール版)
  * Manifest V3対応のService Worker
  */
+
+// ============================================================================
+// モジュールインポート
+// ============================================================================
+
+import { generateCompletePrompt } from './promptEngine.js';
+import { processLongText } from './textProcessor.js';
+import GeminiClient from './geminiClient.js';
 
 // ============================================================================
 // 基本設定
@@ -12,9 +20,9 @@ const DEFAULT_SETTINGS = {
   model: 'gemini-1.5-flash',
   geminiApiKey: '',
   temperature: 0.2,
-  defaultMode: 'simplify',
+  defaultMode: 'lexicon',
   gradeLevel: 'junior',
-  maxChunkSize: 300,
+  maxChunkSize: 800,
   maxRetries: 2,
   retryDelay: 1000,
   requestTimeout: 30000
@@ -165,219 +173,12 @@ class SettingsManager {
 }
 
 // ============================================================================
-// Gemini API クライアント
+// Gemini API クライアント（モジュール化済み）
 // ============================================================================
 
-class GeminiClient {
-  constructor() {
-    this.baseUrl = 'https://generativelanguage.googleapis.com/v1/models';
-    this.defaultModel = 'gemini-1.5-flash';
-  }
-
-  async generateText(prompt, options = {}) {
-    const { apiKey, temperature = 0.2, timeout = 30000 } = options;
-
-    console.log('🚀 Gemini API呼び出し開始');
-    console.log('📝 プロンプト長:', prompt.length);
-    console.log('🔑 APIキー:', apiKey ? `${apiKey.substring(0, 10)}...` : 'なし');
-    console.log('🌡️ Temperature:', temperature);
-
-    if (!apiKey) {
-      throw new Error('Gemini APIキーが設定されていません');
-    }
-
-    const endpoint = `${this.baseUrl}/${this.defaultModel}:generateContent`;
-    const requestBody = {
-      contents: [{
-        parts: [{ text: prompt }]
-      }],
-      generationConfig: {
-        temperature: temperature,
-        topP: 0.8,
-        topK: 40,
-        maxOutputTokens: 1024
-      }
-    };
-
-    console.log('🌐 エンドポイント:', endpoint);
-    console.log('📦 リクエストボディ:', JSON.stringify(requestBody, null, 2));
-
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-      console.log('⏰ リクエスト送信中...');
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey
-        },
-        body: JSON.stringify(requestBody),
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-
-      console.log('📡 レスポンス受信:', {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries())
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ API エラーレスポンス:', errorText);
-        throw new Error(`API request failed: ${response.status} - ${errorText}`);
-      }
-
-      const data = await response.json();
-      console.log('📄 APIレスポンスデータ:', JSON.stringify(data, null, 2));
-
-      const result = this._extractResponseText(data);
-      console.log('✅ 抽出されたテキスト:', result);
-
-      return result;
-
-    } catch (error) {
-      console.error('❌ Gemini API呼び出しエラー:', error);
-      throw error;
-    }
-  }
-
-  async validateApiKey(apiKey) {
-    try {
-      const response = await this.generateText('Hello', { apiKey, maxOutputTokens: 10 });
-      return true;
-    } catch (error) {
-      console.error('API key validation failed:', error);
-      return false;
-    }
-  }
-
-  _extractResponseText(data) {
-    console.log('🔍 レスポンス解析開始');
-    console.log('📊 データ構造:', {
-      hasCandidates: !!data.candidates,
-      candidatesLength: data.candidates?.length,
-      hasError: !!data.error,
-      dataKeys: Object.keys(data)
-    });
-
-    if (data.candidates && data.candidates[0]) {
-      const candidate = data.candidates[0];
-      console.log('🎯 候補データ:', {
-        hasContent: !!candidate.content,
-        hasFinishReason: !!candidate.finishReason,
-        finishReason: candidate.finishReason,
-        candidateKeys: Object.keys(candidate)
-      });
-
-      if (candidate.content) {
-        const content = candidate.content;
-        console.log('📝 コンテンツデータ:', {
-          hasParts: !!content.parts,
-          partsLength: content.parts?.length,
-          contentKeys: Object.keys(content)
-        });
-
-        if (content.parts && content.parts[0]) {
-          const part = content.parts[0];
-          console.log('📄 パートデータ:', {
-            hasText: !!part.text,
-            textLength: part.text?.length,
-            partKeys: Object.keys(part)
-          });
-
-          if (part.text) {
-            const extractedText = part.text.trim();
-            console.log('✅ 抽出成功:', extractedText.substring(0, 100) + '...');
-            return { text: extractedText };
-          }
-        }
-      }
-
-      // finishReasonをチェック
-      if (candidate.finishReason === 'SAFETY') {
-        throw new Error('コンテンツが安全性フィルターによってブロックされました');
-      }
-
-      if (candidate.finishReason === 'MAX_TOKENS') {
-        throw new Error('生成されたテキストが長すぎます。短いテキストで再試行してください。');
-      }
-
-      if (candidate.finishReason === 'RECITATION') {
-        throw new Error('著作権の問題により生成が停止されました');
-      }
-
-      if (candidate.finishReason === 'OTHER') {
-        throw new Error('不明な理由により生成が停止されました');
-      }
-    }
-
-    if (data.error) {
-      console.error('🚨 APIエラー:', data.error);
-      throw new Error(`API Error: ${data.error.message || 'Unknown error'}`);
-    }
-
-    console.error('❌ 予期しないレスポンス構造:', data);
-    throw new Error('APIから有効なレスポンスが返されませんでした');
-  }
-}
-
 // ============================================================================
-// プロンプト生成
+// プロンプト生成（モジュール化済み）
 // ============================================================================
-
-class PromptEngine {
-  generatePrompt(text, mode, level = 'junior') {
-    const systemPrompt = this._getSystemPrompt(mode, level);
-    const userPrompt = this._getUserPrompt(text, mode, level);
-    return `${systemPrompt}\n\n${userPrompt}`;
-  }
-
-  _getSystemPrompt(mode, level) {
-    switch (mode) {
-      case 'simplify':
-        return `簡単な言葉で短く書き直して。`;
-      case 'concretize':
-        return `具体例で説明して。`;
-      case 'abstract':
-        return `要点をまとめて。`;
-      case 'grade':
-        const gradeInfo = this._getGradeInfo(level);
-        return `${gradeInfo.name}向けに短く書き直して。`;
-      default:
-        return `簡単な言葉で短く書き直して。`;
-    }
-  }
-
-  _getUserPrompt(text, mode, level) {
-    return text;
-  }
-
-  _getGradeInfo(level) {
-    const gradeLevels = {
-      elementary: {
-        name: '小学生',
-        maxLength: 25,
-        description: 'ひらがな多め、二重否定回避'
-      },
-      junior: {
-        name: '中学生',
-        maxLength: 35,
-        description: '基本語彙＋頻出専門語に簡単な注釈'
-      },
-      senior: {
-        name: '高校生',
-        maxLength: 45,
-        description: '論理接続明確、必要最小の専門語'
-      }
-    };
-
-    return gradeLevels[level] || gradeLevels.junior;
-  }
-}
 
 // ============================================================================
 // モジュール初期化
@@ -389,12 +190,10 @@ function initializeModules() {
   try {
     const settingsManager = new SettingsManager();
     const geminiClient = new GeminiClient();
-    const promptEngine = new PromptEngine();
 
     modules = {
       settingsManager,
-      geminiClient,
-      promptEngine
+      geminiClient
     };
 
     console.log('Text-Simpler: All modules initialized successfully');
@@ -407,10 +206,14 @@ function initializeModules() {
 }
 
 // ============================================================================
+// テキスト分割処理（モジュール化済み）
+// ============================================================================
+
+// ============================================================================
 // テキスト変換処理
 // ============================================================================
 
-async function transformSingleText({ text, mode, level, apiKey, temperature }) {
+async function transformSingleText({ text, mode, level, apiKey, temperature, model }) {
   console.log('🔄 テキスト変換開始');
   console.log('📝 入力テキスト:', text.substring(0, 100) + '...');
   console.log('🎯 モード:', mode);
@@ -418,16 +221,26 @@ async function transformSingleText({ text, mode, level, apiKey, temperature }) {
   console.log('🌡️ Temperature:', temperature);
 
   try {
-    // テキストが長すぎる場合は分割
-    let processText = text;
-    if (text.length > 300) {
-      console.log('📏 テキストが長いため最初の300文字に短縮');
-      processText = text.substring(0, 300) + '...';
+    // 長文の場合はチャンク分割処理を使用
+    if (text.length > 800) {
+      console.log('📏 長文検出、チャンク分割処理を実行');
+      return await processLongText({
+        text,
+        mode,
+        level,
+        apiKey,
+        temperature,
+        model,
+        transformFunction: transformSingleText
+      });
     }
+
+    // 通常の処理（短いテキスト）
+    console.log('📝 通常処理を実行');
 
     // プロンプト生成
     console.log('🛠️ プロンプト生成中...');
-    const prompt = modules.promptEngine.generatePrompt(processText, mode, level);
+    const prompt = generateCompletePrompt(text, mode, level);
     console.log('📋 生成されたプロンプト:', prompt.substring(0, 200) + '...');
 
     // API呼び出し
@@ -435,6 +248,7 @@ async function transformSingleText({ text, mode, level, apiKey, temperature }) {
     const response = await modules.geminiClient.generateText(prompt, {
       apiKey,
       temperature,
+      model,
       timeout: 30000
     });
 
@@ -478,6 +292,10 @@ async function handleMessage(request, sender, sendResponse) {
         await handleValidateApiKey(request, sendResponse);
         break;
 
+      case 'openOptionsPage':
+        await handleOpenOptionsPage(request, sendResponse);
+        break;
+
       default:
         sendResponse({
           success: false,
@@ -501,7 +319,7 @@ async function handleTransformRequest(request, sendResponse) {
   try {
     console.log('⚙️ 設定読み込み中...');
     const settings = await modules.settingsManager.getSettings([
-      'geminiApiKey', 'temperature', 'defaultMode', 'gradeLevel'
+      'geminiApiKey', 'temperature', 'defaultMode', 'gradeLevel', 'model'
     ]);
     console.log('📋 読み込まれた設定:', { ...settings, geminiApiKey: settings.geminiApiKey ? '設定済み' : '未設定' });
 
@@ -515,13 +333,28 @@ async function handleTransformRequest(request, sendResponse) {
       mode: mode || settings.defaultMode,
       level: level || settings.gradeLevel,
       apiKey: settings.geminiApiKey,
-      temperature: settings.temperature
+      temperature: settings.temperature,
+      model: settings.model
     });
 
     console.log('✅ 変換成功、レスポンス送信');
+
+    // 長文処理の結果を適切に処理
+    let responseResult = result;
+    if (typeof result === 'object' && result.text) {
+      // チャンク分割処理の結果
+      responseResult = result.text;
+      console.log(`📊 チャンク処理結果: ${result.totalChunks}チャンク中${result.successfulChunks}チャンク成功`);
+    }
+
     sendResponse({
       success: true,
-      result: result
+      result: responseResult,
+      isLongText: typeof result === 'object' && result.chunks,
+      chunkInfo: typeof result === 'object' && result.chunks ? {
+        total: result.totalChunks,
+        successful: result.successfulChunks
+      } : null
     });
 
   } catch (error) {
@@ -583,7 +416,27 @@ async function handleValidateApiKey(request, sendResponse) {
     console.error('API key validation handler error:', error);
     sendResponse({
       success: false,
-      valid: false,
+      error: error.message
+    });
+  }
+}
+
+async function handleOpenOptionsPage(request, sendResponse) {
+  try {
+    console.log('Opening options page...');
+
+    // オプションページを開く
+    await chrome.runtime.openOptionsPage();
+
+    sendResponse({
+      success: true,
+      message: 'Options page opened successfully'
+    });
+
+  } catch (error) {
+    console.error('Failed to open options page:', error);
+    sendResponse({
+      success: false,
       error: error.message
     });
   }
@@ -626,4 +479,4 @@ chrome.action.onClicked.addListener(async (tab) => {
   }
 });
 
-console.log('Text-Simpler: Simple background script loaded');
+console.log('Text-Simpler: Modular background script loaded');
