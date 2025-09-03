@@ -354,16 +354,6 @@ class PromptEngine {
         return `${commonPolicy}${levelInfo}一文一義、目的→結論→要旨→本文の順。`;
       case 'cohesion':
         return `${commonPolicy}${levelInfo}接続詞追加、主語再掲、前提補足。`;
-      // 後方互換性のため旧モードも残す
-      case 'simplify':
-        return `${commonPolicy}${levelInfo}簡単な言葉で短く。`;
-      case 'concretize':
-        return `${commonPolicy}${levelInfo}具体例で説明。`;
-      case 'abstract':
-        return `${commonPolicy}${levelInfo}要点をまとめる。`;
-      case 'grade':
-        const gradeInfo = this._getGradeInfo(level);
-        return `${commonPolicy}${gradeInfo.name}向けに変換。`;
       default:
         return `${commonPolicy}${levelInfo}語・記号の意味を明確化。`;
     }
@@ -377,13 +367,8 @@ class PromptEngine {
         return `次の文は情報が多いので、目的→結論→要旨→本文の順に短く並べ替え、文を分割してください。--- ${text} ---`;
       case 'cohesion':
         return `次の文のつながりが分かるように、接続詞を足し、指示語を具体化し、必要なら前提を一文で補ってください。--- ${text} ---`;
-      // 後方互換性のため旧モードも残す
-      case 'simplify':
-      case 'concretize':
-      case 'abstract':
-      case 'grade':
       default:
-        return text;
+        return `次の文を変換してください。--- ${text} ---`;
     }
   }
 
