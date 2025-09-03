@@ -373,44 +373,7 @@
     background: #ccc !important;
 }
 
-/* 結果表示 */
-.ts-result-section {
-    background: #f9f9f9 !important;
-    border: 1px solid #ddd !important;
-    border-radius: 3px !important;
-    padding: 8px !important;
-}
 
-.ts-result-message {
-    color: #333 !important;
-    font-weight: 500 !important;
-    margin-bottom: 8px !important;
-    font-size: 12px !important;
-}
-
-.ts-result-actions {
-    display: flex !important;
-    gap: 8px !important;
-}
-
-.ts-copy-btn,
-.ts-clear-btn {
-    padding: 4px 8px !important;
-    border: 1px solid #ccc !important;
-    background: white !important;
-    color: #333 !important;
-    font-size: 11px !important;
-    cursor: pointer !important;
-    border-radius: 3px !important;
-    transition: all 0.2s !important;
-    font-family: inherit !important;
-}
-
-.ts-copy-btn:hover,
-.ts-clear-btn:hover {
-    background: #f0f0f0 !important;
-    border-color: #999 !important;
-}
 
 /* エラー表示 */
 .ts-error-section {
@@ -492,21 +455,7 @@
     color: #666 !important;
 }
 
-/* フッター */
-.ts-popup-footer {
-    padding: 6px 8px !important;
-    background: #f9f9f9 !important;
-    border-top: 1px solid #ddd !important;
-}
 
-.ts-status-info {
-    text-align: center !important;
-}
-
-#ts-status-text {
-    font-size: 11px !important;
-    color: #666 !important;
-}
 
 /* スクロールバー */
 .ts-selected-text-preview::-webkit-scrollbar {

@@ -14,9 +14,13 @@ let isPopupVisible = false;
 
 // 初期化
 function initialize() {
-  // 選択テキストの監視
+  // 選択テキストの監視（より包括的に）
   document.addEventListener('mouseup', handleTextSelection);
   document.addEventListener('keyup', handleTextSelection);
+  document.addEventListener('selectionchange', handleTextSelection);
+
+  // クリックで選択解除される場合にも対応
+  document.addEventListener('click', handleTextSelection);
 
   // メッセージリスナー
   chrome.runtime.onMessage.addListener(handleRuntimeMessage);
@@ -24,18 +28,27 @@ function initialize() {
   console.log('Text-Simpler: Simple content script initialized');
 }
 
+// デバウンス用のタイマー
+let selectionUpdateTimer = null;
+
 /**
  * テキスト選択イベントハンドラ
  */
 function handleTextSelection() {
   if (isProcessing) return;
 
-  setTimeout(() => {
+  // 前のタイマーをクリア（デバウンス）
+  if (selectionUpdateTimer) {
+    clearTimeout(selectionUpdateTimer);
+  }
+
+  selectionUpdateTimer = setTimeout(() => {
     const selection = window.getSelection();
     const selectedText = selection.toString().trim();
 
     // 選択テキストが変更された場合のみ処理
     if (selectedText !== currentSelectedText) {
+      const previousText = currentSelectedText;
       currentSelectedText = selectedText;
       currentSelection = selection.rangeCount > 0 ? selection.getRangeAt(0).cloneRange() : null;
 
@@ -48,8 +61,20 @@ function handleTextSelection() {
           console.error('Text-Simpler: Failed to send text selection:', error);
         });
       }
+
+      // フローティングポップアップが表示されている場合はリアルタイム更新
+      if (isPopupVisible && floatingPopup) {
+        updateFloatingSelectedTextPreview();
+        updateFloatingTransformButton();
+
+        // デバッグログ（選択が変更された場合のみ）
+        if (selectedText !== previousText) {
+          console.log('Text-Simpler: Updated floating popup with selected text:',
+            selectedText ? selectedText.substring(0, 50) + '...' : '(no selection)');
+        }
+      }
     }
-  }, 100);
+  }, 150); // デバウンス時間を150msに調整
 }
 
 /**
@@ -466,7 +491,6 @@ function createFloatingPopup() {
       <main class="ts-popup-main" id="ts-popup-main">
         <!-- モード選択 -->
         <section class="ts-mode-section">
-          <h2>変換モード</h2>
           <div class="ts-mode-tabs">
             <button class="ts-mode-tab ts-active" data-mode="simplify">わかりやすく</button>
             <button class="ts-mode-tab" data-mode="concretize">具体化</button>
@@ -494,14 +518,9 @@ function createFloatingPopup() {
           </div>
         </section>
 
-        <!-- 対象テキスト表示 -->
-        <section class="ts-target-section">
-          <h3>変換対象：選択テキスト</h3>
-        </section>
 
         <!-- 選択テキスト表示 -->
         <section class="ts-selected-text-section">
-          <h3>選択中のテキスト</h3>
           <div class="ts-selected-text-preview" id="ts-selected-text-preview">
             テキストを選択してください
           </div>
@@ -517,19 +536,7 @@ function createFloatingPopup() {
           </button>
         </section>
 
-        <!-- 結果表示 -->
-        <section class="ts-result-section" id="ts-result-section" style="display: none;">
-          <h3>変換完了</h3>
-          <div class="ts-result-content">
-            <div class="ts-result-message" id="ts-result-message">
-              選択したテキストがページ上で直接変換されました。
-            </div>
-            <div class="ts-result-actions">
-              <button id="ts-copy-btn" class="ts-copy-btn">結果をコピー</button>
-              <button id="ts-clear-btn" class="ts-clear-btn">閉じる</button>
-            </div>
-          </div>
-        </section>
+
 
         <!-- エラー表示 -->
         <section class="ts-error-section" id="ts-error-section" style="display: none;">
@@ -550,13 +557,6 @@ function createFloatingPopup() {
           </div>
         </section>
       </main>
-
-      <!-- フッター -->
-      <footer class="ts-popup-footer">
-        <div class="ts-status-info">
-          <span id="ts-status-text">準備完了</span>
-        </div>
-      </footer>
     </div>
   `;
 
@@ -682,11 +682,7 @@ function setupFloatingPopupEventListeners() {
   const undoAllBtn = floatingPopup.querySelector('#ts-undo-all-btn');
   undoAllBtn.addEventListener('click', handleFloatingUndoAll);
 
-  const copyBtn = floatingPopup.querySelector('#ts-copy-btn');
-  copyBtn.addEventListener('click', handleFloatingCopy);
 
-  const clearBtn = floatingPopup.querySelector('#ts-clear-btn');
-  clearBtn.addEventListener('click', handleFloatingClear);
 
   const retryBtn = floatingPopup.querySelector('#ts-retry-btn');
   retryBtn.addEventListener('click', handleFloatingRetry);
@@ -807,7 +803,6 @@ async function handleFloatingTransform() {
   try {
     floatingState.isProcessing = true;
     hideFloatingError();
-    hideFloatingResult();
     showFloatingLoading();
     updateFloatingPopupUI();
 
@@ -822,10 +817,15 @@ async function handleFloatingTransform() {
       handleTransformText(request, (response) => {
         if (response.success) {
           floatingState.lastResult = response.result;
-          showFloatingResult(response.result, response.applied);
 
           // 「全て元に戻す」ボタンの表示を更新
           updateUndoAllButtonVisibility();
+
+          // ステータスメッセージを更新（フッターが存在する場合のみ）
+          const statusText = floatingPopup.querySelector('#ts-status-text');
+          if (statusText) {
+            statusText.textContent = '変換完了';
+          }
 
           resolve(response);
         } else {
@@ -853,7 +853,9 @@ async function handleFloatingUndoAll() {
           updateUndoAllButtonVisibility();
 
           const statusText = floatingPopup.querySelector('#ts-status-text');
-          statusText.textContent = response.message || '変換を元に戻しました';
+          if (statusText) {
+            statusText.textContent = response.message || '変換を元に戻しました';
+          }
 
           resolve(response);
         } else {
@@ -879,32 +881,7 @@ function updateUndoAllButtonVisibility() {
   undoAllBtn.style.display = markers.length > 0 ? 'inline-block' : 'none';
 }
 
-async function handleFloatingCopy() {
-  if (!floatingState.lastResult) return;
 
-  try {
-    await navigator.clipboard.writeText(floatingState.lastResult);
-
-    const statusText = floatingPopup.querySelector('#ts-status-text');
-    statusText.textContent = 'コピー完了';
-
-    const copyBtn = floatingPopup.querySelector('#ts-copy-btn');
-    const originalText = copyBtn.textContent;
-    copyBtn.textContent = 'コピー完了!';
-    setTimeout(() => {
-      copyBtn.textContent = originalText;
-    }, 1000);
-  } catch (error) {
-    console.error('Copy error:', error);
-  }
-}
-
-function handleFloatingClear() {
-  floatingState.lastResult = null;
-  hideFloatingResult();
-  const statusText = floatingPopup.querySelector('#ts-status-text');
-  statusText.textContent = '準備完了';
-}
 
 function handleFloatingRetry() {
   hideFloatingError();
@@ -914,7 +891,9 @@ function handleFloatingRetry() {
 function handleFloatingCloseError() {
   hideFloatingError();
   const statusText = floatingPopup.querySelector('#ts-status-text');
-  statusText.textContent = '準備完了';
+  if (statusText) {
+    statusText.textContent = '準備完了';
+  }
 }
 
 // UI表示制御関数群
@@ -928,23 +907,7 @@ function hideFloatingLoading() {
   loadingSection.style.display = 'none';
 }
 
-function showFloatingResult(result, applied = false) {
-  const resultSection = floatingPopup.querySelector('#ts-result-section');
-  const resultMessage = floatingPopup.querySelector('#ts-result-message');
 
-  if (applied) {
-    resultMessage.textContent = '選択したテキストがページ上で直接変換されました。';
-  } else {
-    resultMessage.textContent = '変換は完了しましたが、ページへの適用に失敗しました。';
-  }
-
-  resultSection.style.display = 'block';
-}
-
-function hideFloatingResult() {
-  const resultSection = floatingPopup.querySelector('#ts-result-section');
-  resultSection.style.display = 'none';
-}
 
 function showFloatingError(message, canRetry = false) {
   const errorSection = floatingPopup.querySelector('#ts-error-section');
@@ -961,17 +924,7 @@ function hideFloatingError() {
   errorSection.style.display = 'none';
 }
 
-// 選択テキストが変更されたときにフローティングポップアップも更新
-const originalHandleTextSelection = handleTextSelection;
-handleTextSelection = function () {
-  originalHandleTextSelection.call(this);
 
-  // フローティングポップアップが表示されている場合は更新
-  if (isPopupVisible && floatingPopup) {
-    updateFloatingSelectedTextPreview();
-    updateFloatingTransformButton();
-  }
-};
 
 // 初期化を実行
 initialize();
