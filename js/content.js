@@ -147,52 +147,17 @@ async function handleTransformText(request, sendResponse) {
  */
 function applyTransformToPage(originalText, transformedText, elementId = null) {
   try {
-    let targetElement = null;
-
-    // 特定の要素IDが指定されている場合
-    if (elementId) {
-      targetElement = document.getElementById(elementId);
-    }
-
-    // 選択範囲がある場合
-    if (!targetElement && currentSelection) {
+    // 選択範囲を使用してマーカーを作成
+    if (currentSelection) {
       const selection = window.getSelection();
       if (selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        targetElement = range.commonAncestorContainer;
+        const range = currentSelection;
+        return applyMarkerToSelection(range, originalText, transformedText);
       }
     }
 
-    // 要素が見つからない場合は新しく作成
-    if (!targetElement) {
-      targetElement = document.createElement('div');
-      targetElement.className = 'text-simpler-result';
-      targetElement.style.cssText = `
-        background: #f0f8ff;
-        border: 1px solid #ccc;
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 4px;
-      `;
-      document.body.appendChild(targetElement);
-    }
-
-    // テキストを置換
-    if (targetElement.nodeType === Node.TEXT_NODE) {
-      targetElement.textContent = targetElement.textContent.replace(originalText, transformedText);
-    } else {
-      targetElement.textContent = transformedText;
-    }
-
-    // 要素IDを生成（存在しない場合）
-    if (!targetElement.id) {
-      targetElement.id = 'text-simpler-' + Date.now();
-    }
-
-    return {
-      success: true,
-      elementId: targetElement.id
-    };
+    // フォールバック: テキスト検索で適用
+    return applyMarkerByTextSearch(originalText, transformedText);
 
   } catch (error) {
     console.error('Apply transform error:', error);
@@ -200,6 +165,161 @@ function applyTransformToPage(originalText, transformedText, elementId = null) {
       success: false,
       error: error.message
     };
+  }
+}
+
+/**
+ * 選択範囲にマーカーを適用
+ */
+function applyMarkerToSelection(range, originalText, transformedText) {
+  try {
+    // 選択されたテキストが期待されるテキストと一致するか確認
+    const selectedText = range.toString().trim();
+    if (selectedText !== originalText.trim()) {
+      console.warn('Selected text does not match original text');
+    }
+
+    // マーカー要素を作成
+    const marker = createMarkerElement(transformedText, originalText, getCurrentMode());
+
+    // 選択範囲を削除してマーカーを挿入
+    range.deleteContents();
+    range.insertNode(marker);
+
+    // 選択をクリア
+    window.getSelection().removeAllRanges();
+
+    return {
+      success: true,
+      elementId: marker.id,
+      marker: marker
+    };
+
+  } catch (error) {
+    console.error('Apply marker to selection error:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * テキスト検索でマーカーを適用（フォールバック）
+ */
+function applyMarkerByTextSearch(originalText, transformedText) {
+  try {
+    // TreeWalkerを使用してテキストノードを検索
+    const walker = document.createTreeWalker(
+      document.body,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode: function (node) {
+          // マーカー内のテキストは除外
+          if (node.parentElement && node.parentElement.classList.contains('text-simpler-marker')) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          return node.textContent.includes(originalText) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+        }
+      }
+    );
+
+    let textNode = walker.nextNode();
+    while (textNode) {
+      const textContent = textNode.textContent;
+      const index = textContent.indexOf(originalText);
+
+      if (index !== -1) {
+        // テキストノードを分割してマーカーを挿入
+        const beforeText = textContent.substring(0, index);
+        const afterText = textContent.substring(index + originalText.length);
+
+        // 新しいテキストノードを作成
+        const beforeNode = document.createTextNode(beforeText);
+        const afterNode = document.createTextNode(afterText);
+        const marker = createMarkerElement(transformedText, originalText, getCurrentMode());
+
+        // 親要素に新しいノードを挿入
+        const parent = textNode.parentNode;
+        parent.insertBefore(beforeNode, textNode);
+        parent.insertBefore(marker, textNode);
+        parent.insertBefore(afterNode, textNode);
+        parent.removeChild(textNode);
+
+        return {
+          success: true,
+          elementId: marker.id,
+          marker: marker
+        };
+      }
+
+      textNode = walker.nextNode();
+    }
+
+    return {
+      success: false,
+      error: 'Original text not found in document'
+    };
+
+  } catch (error) {
+    console.error('Apply marker by text search error:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * マーカー要素を作成
+ */
+function createMarkerElement(transformedText, originalText, mode) {
+  const marker = document.createElement('span');
+  marker.className = `text-simpler-marker text-simpler-${mode}`;
+  marker.id = 'text-simpler-marker-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+  marker.textContent = transformedText;
+
+  // 元のテキストをデータ属性として保存
+  marker.setAttribute('data-original-text', originalText);
+  marker.setAttribute('data-mode', mode);
+  marker.setAttribute('title', 'ダブルクリックで元に戻す');
+
+  // ダブルクリックで元に戻すイベントリスナー
+  marker.addEventListener('dblclick', function () {
+    restoreMarker(this);
+  });
+
+  return marker;
+}
+
+/**
+ * 現在のモードを取得
+ */
+function getCurrentMode() {
+  if (floatingState && floatingState.mode) {
+    return floatingState.mode;
+  }
+  return 'simplify'; // デフォルト
+}
+
+/**
+ * マーカーを元のテキストに戻す
+ */
+function restoreMarker(marker) {
+  try {
+    const originalText = marker.getAttribute('data-original-text');
+    const textNode = document.createTextNode(originalText);
+
+    marker.parentNode.replaceChild(textNode, marker);
+
+    // フローティングポップアップの「全て元に戻す」ボタンの状態を更新
+    if (isPopupVisible) {
+      updateUndoAllButtonVisibility();
+    }
+
+    console.log('Marker restored to original text:', originalText);
+  } catch (error) {
+    console.error('Restore marker error:', error);
   }
 }
 
@@ -241,11 +361,18 @@ function handleUndoTransform(request, sendResponse) {
  */
 function handleUndoAllTransforms(request, sendResponse) {
   try {
-    // text-simpler-resultクラスを持つ要素をすべて削除
-    const elements = document.querySelectorAll('.text-simpler-result');
+    // text-simpler-markerクラスを持つ要素をすべて元に戻す
+    const markers = document.querySelectorAll('.text-simpler-marker');
     let count = 0;
 
-    elements.forEach(element => {
+    markers.forEach(marker => {
+      restoreMarker(marker);
+      count++;
+    });
+
+    // 古いシステムの要素も削除（後方互換性）
+    const oldElements = document.querySelectorAll('.text-simpler-result');
+    oldElements.forEach(element => {
       element.remove();
       count++;
     });
@@ -628,6 +755,9 @@ function updateFloatingPopupUI() {
 
   // 変換ボタンの状態更新
   updateFloatingTransformButton();
+
+  // 「全て元に戻す」ボタンの状態更新
+  updateUndoAllButtonVisibility();
 }
 
 /**
@@ -694,9 +824,8 @@ async function handleFloatingTransform() {
           floatingState.lastResult = response.result;
           showFloatingResult(response.result, response.applied);
 
-          // 「全て元に戻す」ボタンを表示
-          const undoAllBtn = floatingPopup.querySelector('#ts-undo-all-btn');
-          undoAllBtn.style.display = 'inline-block';
+          // 「全て元に戻す」ボタンの表示を更新
+          updateUndoAllButtonVisibility();
 
           resolve(response);
         } else {
@@ -720,8 +849,8 @@ async function handleFloatingUndoAll() {
     await new Promise((resolve, reject) => {
       handleUndoAllTransforms({}, (response) => {
         if (response.success) {
-          const undoAllBtn = floatingPopup.querySelector('#ts-undo-all-btn');
-          undoAllBtn.style.display = 'none';
+          // 「全て元に戻す」ボタンを非表示
+          updateUndoAllButtonVisibility();
 
           const statusText = floatingPopup.querySelector('#ts-status-text');
           statusText.textContent = response.message || '変換を元に戻しました';
@@ -735,6 +864,19 @@ async function handleFloatingUndoAll() {
   } catch (error) {
     console.error('Floating undo all error:', error);
   }
+}
+
+/**
+ * 「全て元に戻す」ボタンの表示/非表示を更新
+ */
+function updateUndoAllButtonVisibility() {
+  if (!floatingPopup) return;
+
+  const undoAllBtn = floatingPopup.querySelector('#ts-undo-all-btn');
+  const markers = document.querySelectorAll('.text-simpler-marker');
+
+  // マーカーが存在する場合のみボタンを表示
+  undoAllBtn.style.display = markers.length > 0 ? 'inline-block' : 'none';
 }
 
 async function handleFloatingCopy() {
