@@ -928,6 +928,100 @@ function createFloatingPopup() {
         background-color: rgba(0, 0, 0, 0.1);
         transform: scale(1.05);
       }
+      .ts-control-btn#ts-minimize-btn {
+        background: #007bff;
+        color: white;
+        border: 1px solid #007bff;
+        font-weight: 600;
+        font-size: 16px;
+        min-width: 28px;
+        min-height: 28px;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+      }
+      .ts-control-btn#ts-minimize-btn:hover {
+        background: #0056b3;
+        border-color: #0056b3;
+        transform: scale(1.1);
+        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.4);
+      }
+      /* 最小化状態の「＋」ボタンを特別に目立たせる */
+      .ts-control-btn#ts-minimize-btn[title="展開"] {
+        background: #28a745;
+        border-color: #28a745;
+        box-shadow: 0 2px 6px rgba(40, 167, 69, 0.4);
+        animation: pulse 2s infinite;
+      }
+      .ts-control-btn#ts-minimize-btn[title="展開"]:hover {
+        background: #218838;
+        border-color: #218838;
+        box-shadow: 0 4px 10px rgba(40, 167, 69, 0.6);
+        animation: none;
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .ts-api-key-guide {
+        background: #fff3cd;
+        color: #856404;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 12px;
+        border: 1px solid #ffeaa7;
+        box-shadow: 0 2px 4px rgba(255, 193, 7, 0.1);
+      }
+      .ts-guide-content {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .ts-guide-icon {
+        font-size: 18px;
+        flex-shrink: 0;
+        color: #856404;
+      }
+      .ts-guide-text {
+        flex: 1;
+      }
+      .ts-guide-text h4 {
+        margin: 0 0 2px 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: #856404;
+      }
+      .ts-guide-text p {
+        margin: 0;
+        font-size: 11px;
+        color: #856404;
+        line-height: 1.2;
+        opacity: 0.8;
+      }
+      .ts-setup-btn {
+        background: #856404;
+        border: 1px solid #856404;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex-shrink: 0;
+      }
+      .ts-setup-btn:hover {
+        background: #6d5204;
+        border-color: #6d5204;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(133, 100, 4, 0.3);
+      }
       .ts-popup-main {
         padding: 8px;
       }
@@ -979,6 +1073,18 @@ function createFloatingPopup() {
           </div>
         </section>
 
+
+        <!-- APIキー設定案内 -->
+        <section class="ts-api-key-guide" id="ts-api-key-guide" style="display: none;">
+          <div class="ts-guide-content">
+            <div class="ts-guide-icon">🔑</div>
+            <div class="ts-guide-text">
+              <h4>APIキーを設定してください</h4>
+              <p>Gemini APIキーを設定すると、テキスト変換機能が利用できます</p>
+            </div>
+            <button id="ts-setup-api-btn" class="ts-setup-btn">設定</button>
+          </div>
+        </section>
 
         <!-- 選択テキスト表示 -->
         <section class="ts-selected-text-section">
@@ -1064,6 +1170,11 @@ function initializeFloatingPopup() {
 
   // 初期状態の更新
   updateFloatingPopupUI();
+
+  // APIキーの状態をチェックして案内を表示
+  setTimeout(() => {
+    updateApiKeyGuideVisibility();
+  }, 100);
 }
 
 /**
@@ -1137,6 +1248,10 @@ function setupFloatingPopupEventListeners() {
   const gradeLevelSelect = floatingPopup.querySelector('#ts-grade-level-select');
   gradeLevelSelect.addEventListener('change', handleFloatingGradeLevelChange);
 
+  // APIキー設定ボタン
+  const setupApiBtn = floatingPopup.querySelector('#ts-setup-api-btn');
+  setupApiBtn.addEventListener('click', handleFloatingSettings);
+
   // 変換ボタン
   const transformBtn = floatingPopup.querySelector('#ts-transform-btn');
   transformBtn.addEventListener('click', handleFloatingTransform);
@@ -1169,6 +1284,7 @@ let floatingState = {
 function toggleMinimize() {
   const main = floatingPopup.querySelector('#ts-popup-main');
   const minimizeBtn = floatingPopup.querySelector('#ts-minimize-btn');
+  const settingsBtn = floatingPopup.querySelector('#ts-settings-btn');
 
   floatingState.isMinimized = !floatingState.isMinimized;
 
@@ -1180,6 +1296,11 @@ function toggleMinimize() {
     floatingPopup.style.height = 'auto';
     floatingPopup.style.width = '250px'; // 最小化時は幅を狭く
 
+    // 設定ボタンを非表示
+    if (settingsBtn) {
+      settingsBtn.style.display = 'none';
+    }
+
     // 最小化状態でのタイトル更新
     updateMinimizedTitle();
   } else {
@@ -1188,6 +1309,11 @@ function toggleMinimize() {
     minimizeBtn.textContent = '−';
     minimizeBtn.title = '最小化';
     floatingPopup.style.width = '420px'; // 元の幅に戻す
+
+    // 設定ボタンを表示
+    if (settingsBtn) {
+      settingsBtn.style.display = 'flex';
+    }
 
     // 元のタイトルに戻す
     const title = floatingPopup.querySelector('.ts-popup-header h1');
@@ -1236,6 +1362,9 @@ function updateFloatingPopupUI() {
     gradeLevelSelect.value = floatingState.gradeLevel;
   }
 
+  // APIキー設定案内の表示/非表示
+  updateApiKeyGuideVisibility();
+
   // 選択テキストプレビューの更新
   updateFloatingSelectedTextPreview();
 
@@ -1269,12 +1398,36 @@ function updateFloatingSelectedTextPreview() {
  */
 function updateFloatingTransformButton() {
   const transformBtn = floatingPopup.querySelector('#ts-transform-btn');
-  const canTransform = !floatingState.isProcessing &&
-    currentSelectedText &&
-    currentSelectedText.length > 5;
 
-  transformBtn.disabled = !canTransform;
-  transformBtn.textContent = floatingState.isProcessing ? '変換中...' : '変換実行';
+  // APIキーの状態をチェック
+  chrome.runtime.sendMessage({
+    action: 'getSettings',
+    keys: ['geminiApiKey']
+  }, (response) => {
+    if (chrome.runtime.lastError) {
+      console.error('Failed to check API key status:', chrome.runtime.lastError);
+      return;
+    }
+
+    const hasApiKey = response && response.success &&
+      response.settings &&
+      response.settings.geminiApiKey &&
+      response.settings.geminiApiKey.trim().length > 0;
+
+    const canTransform = !floatingState.isProcessing &&
+      hasApiKey &&
+      currentSelectedText &&
+      currentSelectedText.length > 5;
+
+    transformBtn.disabled = !canTransform;
+    transformBtn.textContent = floatingState.isProcessing ? '変換中...' : '変換実行';
+
+    if (!hasApiKey) {
+      transformBtn.title = 'APIキーを設定してください';
+    } else {
+      transformBtn.title = '';
+    }
+  });
 }
 
 // イベントハンドラー関数群
@@ -1356,6 +1509,67 @@ async function handleFloatingUndoAll() {
   } catch (error) {
     console.error('Floating undo all error:', error);
   }
+}
+
+/**
+ * APIキー設定案内の表示/非表示を更新
+ */
+function updateApiKeyGuideVisibility() {
+  if (!floatingPopup) return;
+
+  const apiKeyGuide = floatingPopup.querySelector('#ts-api-key-guide');
+  const transformBtn = floatingPopup.querySelector('#ts-transform-btn');
+  const modeSection = floatingPopup.querySelector('.ts-mode-section');
+  const selectedTextSection = floatingPopup.querySelector('.ts-selected-text-section');
+  const actionSection = floatingPopup.querySelector('.ts-action-section');
+  const gradeSection = floatingPopup.querySelector('.ts-grade-section');
+
+  // APIキーの状態をチェック
+  chrome.runtime.sendMessage({
+    action: 'getSettings',
+    keys: ['geminiApiKey']
+  }, (response) => {
+    if (chrome.runtime.lastError) {
+      console.error('Failed to check API key status:', chrome.runtime.lastError);
+      return;
+    }
+
+    const hasApiKey = response && response.success &&
+      response.settings &&
+      response.settings.geminiApiKey &&
+      response.settings.geminiApiKey.trim().length > 0;
+
+    if (apiKeyGuide) {
+      apiKeyGuide.style.display = hasApiKey ? 'none' : 'block';
+    }
+
+    // APIキーがない場合は不要なセクションを非表示
+    if (modeSection) {
+      modeSection.style.display = hasApiKey ? 'block' : 'none';
+    }
+
+    if (selectedTextSection) {
+      selectedTextSection.style.display = hasApiKey ? 'block' : 'none';
+    }
+
+    if (actionSection) {
+      actionSection.style.display = hasApiKey ? 'block' : 'none';
+    }
+
+    if (gradeSection) {
+      gradeSection.style.display = hasApiKey ? 'block' : 'none';
+    }
+
+    if (transformBtn) {
+      // APIキーがない場合は変換ボタンを無効化
+      transformBtn.disabled = !hasApiKey || !currentSelectedText || currentSelectedText.length <= 5;
+      if (!hasApiKey) {
+        transformBtn.title = 'APIキーを設定してください';
+      } else {
+        transformBtn.title = '';
+      }
+    }
+  });
 }
 
 /**
@@ -1483,28 +1697,36 @@ async function showMinimizedPopupAutomatically() {
     // フローティングポップアップを作成・表示
     showFloatingPopup();
 
-    // 最小化状態にする
+    // 展開状態のままにする（デフォルトで展開）
     if (floatingPopup) {
-      floatingState.isMinimized = true;
+      floatingState.isMinimized = false;
       const main = floatingPopup.querySelector('#ts-popup-main');
       const minimizeBtn = floatingPopup.querySelector('#ts-minimize-btn');
 
       if (main) {
-        main.style.display = 'none';
+        main.style.display = 'block';
       }
       if (minimizeBtn) {
-        minimizeBtn.textContent = '+';
-        minimizeBtn.title = '展開';
+        minimizeBtn.textContent = '−';
+        minimizeBtn.title = '最小化';
       }
 
-      // 最小化状態用のスタイル調整
-      floatingPopup.style.height = 'auto';
-      floatingPopup.style.width = '250px'; // 最小化時は幅を狭く
+      // 展開状態用のスタイル調整
+      floatingPopup.style.width = '420px'; // 通常の幅
 
-      // 最小化状態のタイトル更新
-      updateMinimizedTitle();
+      // 設定ボタンを表示
+      const settingsBtn = floatingPopup.querySelector('#ts-settings-btn');
+      if (settingsBtn) {
+        settingsBtn.style.display = 'flex';
+      }
 
-      console.log('Text-Simpler: Auto-displayed minimized popup');
+      // 通常のタイトル
+      const title = floatingPopup.querySelector('.ts-popup-header h1');
+      if (title) {
+        title.textContent = 'Text-Simpler';
+      }
+
+      console.log('Text-Simpler: Auto-displayed expanded popup');
     }
   } catch (error) {
     console.error('Text-Simpler: Auto-display error:', error);
