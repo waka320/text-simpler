@@ -7,24 +7,47 @@
  * 長いテキストを適切なサイズのチャンクに分割
  */
 function splitTextIntoChunks(text, maxChunkSize = 800) {
+    console.log('🔍 チャンク分割開始:', { textLength: text.length, maxChunkSize });
+
     const chunks = [];
 
     // テキストが短い場合は分割不要
     if (text.length <= maxChunkSize) {
+        console.log('📏 テキストが短いため分割不要');
         return [text];
     }
 
-    // 文単位で分割（句点、感嘆符、疑問符で区切る）
-    const sentences = text.split(/[。！？]/).filter(s => s.trim().length > 0);
+    // 文単位で分割（英語と日本語の句点、感嘆符、疑問符で区切る）
+    // 英語: . ! ? 日本語: 。！？
+    const sentences = text.split(/[.!?。！？]/).filter(s => s.trim().length > 0);
+    console.log('📝 分割された文の数:', sentences.length);
 
     let currentChunk = '';
 
     for (const sentence of sentences) {
-        const sentenceWithPunctuation = sentence + '。';
+        // 元のテキストから句読点を復元（英語の場合は . を追加）
+        let sentenceWithPunctuation = sentence.trim();
+        if (sentenceWithPunctuation.length > 0) {
+            // 元のテキストで句読点の直後にある文字を確認
+            const sentenceEnd = text.indexOf(sentence) + sentence.length;
+            if (sentenceEnd < text.length) {
+                const nextChar = text[sentenceEnd];
+                if (nextChar.match(/[.!?。！？]/)) {
+                    sentenceWithPunctuation += nextChar;
+                } else {
+                    // 句読点が見つからない場合は英語の場合は . を追加
+                    sentenceWithPunctuation += '.';
+                }
+            } else {
+                // 文の最後の場合は英語の場合は . を追加
+                sentenceWithPunctuation += '.';
+            }
+        }
 
         // 現在のチャンクに文を追加した場合の長さをチェック
         if ((currentChunk + sentenceWithPunctuation).length > maxChunkSize && currentChunk.length > 0) {
             // チャンクが満杯になったら保存して新しいチャンクを開始
+            console.log('📦 チャンク保存:', { length: currentChunk.length, text: currentChunk.substring(0, 50) + '...' });
             chunks.push(currentChunk.trim());
             currentChunk = sentenceWithPunctuation;
         } else {
@@ -35,14 +58,17 @@ function splitTextIntoChunks(text, maxChunkSize = 800) {
 
     // 最後のチャンクを追加
     if (currentChunk.trim()) {
+        console.log('📦 最後のチャンク保存:', { length: currentChunk.length, text: currentChunk.substring(0, 50) + '...' });
         chunks.push(currentChunk.trim());
     }
 
     // チャンクが空の場合は元のテキストをそのまま返す
     if (chunks.length === 0) {
+        console.log('⚠️ チャンクが空のため元のテキストを返す');
         return [text];
     }
 
+    console.log('✅ チャンク分割完了:', { totalChunks: chunks.length, chunkSizes: chunks.map(c => c.length) });
     return chunks;
 }
 
@@ -59,7 +85,26 @@ async function processLongText({ text, mode, level, apiKey, temperature, model, 
     if (chunks.length === 1) {
         // 単一チャンクの場合は通常処理
         console.log('📝 単一チャンク、通常処理を実行');
-        return await transformFunction({ text, mode, level, apiKey, temperature, model });
+        const result = await transformFunction({
+            text,
+            mode,
+            level,
+            apiKey,
+            temperature,
+            model
+        });
+
+        return {
+            text: result,
+            chunks: [{
+                chunkIndex: 0,
+                originalText: text,
+                transformedText: result,
+                success: true
+            }],
+            totalChunks: 1,
+            successfulChunks: 1
+        };
     }
 
     // 複数チャンクの場合は段階的処理
