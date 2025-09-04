@@ -224,15 +224,31 @@ async function transformSingleText({ text, mode, level, apiKey, temperature, mod
     // 長文の場合はチャンク分割処理を使用
     if (text.length > 800) {
       console.log('📏 長文検出、チャンク分割処理を実行');
-      return await processLongText({
+      const result = await processLongText({
         text,
         mode,
         level,
         apiKey,
         temperature,
         model,
-        transformFunction: transformSingleText
+        transformFunction: async (chunkData) => {
+          // チャンクごとの処理を直接実行（再帰呼び出しを避ける）
+          console.log('📝 チャンク処理実行:', chunkData.text.substring(0, 100) + '...');
+
+          const prompt = generateCompletePrompt(chunkData.text, chunkData.mode, chunkData.level);
+          const response = await modules.geminiClient.generateText(prompt, {
+            apiKey: chunkData.apiKey,
+            temperature: chunkData.temperature,
+            model: chunkData.model,
+            timeout: 30000
+          });
+
+          return response.text;
+        }
       });
+
+      // processLongTextの戻り値からtextプロパティを抽出
+      return result.text;
     }
 
     // 通常の処理（短いテキスト）

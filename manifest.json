@@ -24,6 +24,7 @@
                 "<all_urls>"
             ],
             "js": [
+                "js/floatingUI.js",
                 "js/content.js"
             ],
             "css": [
