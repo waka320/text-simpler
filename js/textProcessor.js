@@ -94,8 +94,14 @@ async function processLongText({ text, mode, level, apiKey, temperature, model, 
             model
         });
 
+        // 単一チャンクでもチャンク処理が行われたことを明示
+        const chunkHeader = `📋 1/1\n`;
+        // 改行文字を<br>タグに変換
+        const htmlText = result.replace(/\n/g, '<br>');
+        const formattedResult = chunkHeader + htmlText;
+
         return {
-            text: result,
+            text: formattedResult,
             chunks: [{
                 chunkIndex: 0,
                 originalText: text,
@@ -156,9 +162,14 @@ async function processLongText({ text, mode, level, apiKey, temperature, model, 
         throw new Error('すべてのチャンクの処理に失敗しました');
     }
 
-    // 変換されたテキストを結合
+    // 変換されたテキストを結合（チャンク区切りを明示）
     const combinedText = successfulResults
-        .map(r => r.transformedText)
+        .map((r, index) => {
+            const chunkHeader = `\n📋 ${r.chunkIndex + 1}/${chunks.length}\n`;
+            // 改行文字を<br>タグに変換（フォールバック：スペースに変換）
+            const htmlText = r.transformedText.replace(/\n/g, '<br>').replace(/\r/g, '');
+            return chunkHeader + htmlText;
+        })
         .join('\n\n');
 
     console.log('🎯 長文処理完了、統合テキスト長:', combinedText.length);

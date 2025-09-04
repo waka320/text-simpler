@@ -321,7 +321,12 @@ function createMarkerElement(transformedText, originalText, mode) {
   const marker = document.createElement('span');
   marker.className = `text-simpler-marker text-simpler-${mode}`;
   marker.id = 'text-simpler-marker-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-  marker.textContent = transformedText;
+
+  // 改行表示の改善: <br> を改行文字に戻し、連続する改行を1つにまとめる
+  let safeText = String(transformedText).replace(/<br\s*\/?>(\s*)/gi, '\n');
+  // 連続する改行を1つにまとめる（3つ以上の改行を2つに）
+  safeText = safeText.replace(/\n{3,}/g, '\n\n');
+  marker.textContent = safeText;
 
   // 元のテキストをデータ属性として保存
   marker.setAttribute('data-original-text', originalText);
@@ -362,7 +367,7 @@ function ensureMarkerStyles() {
       font-family: inherit !important;
       font-size: inherit !important;
       font-weight: inherit !important;
-      line-height: inherit !important;
+      line-height: 1.2 !important;
       text-decoration: none !important;
       text-transform: none !important;
       letter-spacing: normal !important;
@@ -377,9 +382,23 @@ function ensureMarkerStyles() {
       cursor: pointer !important;
       transition: all 0.2s ease !important;
       vertical-align: baseline !important;
-      white-space: normal !important;
+      white-space: pre-line !important;
       word-wrap: normal !important;
       overflow-wrap: normal !important;
+    }
+
+    /* マーカー内の段落間の余白を調整 */
+    .text-simpler-marker p {
+      margin: 0.1em 0 !important;
+      line-height: 1.2 !important;
+    }
+
+    .text-simpler-marker p:first-child {
+      margin-top: 0 !important;
+    }
+
+    .text-simpler-marker p:last-child {
+      margin-bottom: 0 !important;
     }
 
     /* モード別の色設定 */
@@ -513,7 +532,7 @@ function applyAbsoluteMarkerStyle(marker, mode) {
     font-family: inherit !important;
     font-size: inherit !important;
     font-weight: inherit !important;
-    line-height: inherit !important;
+    line-height: 1.2 !important;
     text-decoration: none !important;
     text-transform: none !important;
     letter-spacing: normal !important;
@@ -528,7 +547,7 @@ function applyAbsoluteMarkerStyle(marker, mode) {
     cursor: pointer !important;
     transition: all 0.2s ease !important;
     vertical-align: baseline !important;
-    white-space: normal !important;
+    white-space: pre-line !important;
     word-wrap: normal !important;
     overflow-wrap: normal !important;
   `;
