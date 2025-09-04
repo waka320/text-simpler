@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "Text-Simpler",
+    "name": "ReadEasy.",
     "version": "1.0.0",
     "description": "Webページ上の文章を生成AIで変換し、理解容易性・抽象度・学年相当の読みやすさを制御して提示する",
     "permissions": [

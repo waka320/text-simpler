@@ -1,9 +1,9 @@
 /**
- * Text-Simpler Content Script (シンプル版)
+ * ReadEasy. Content Script (シンプル版)
  * コンテンツスクリプトの基本機能
  */
 
-console.log('Text-Simpler: Simple content script loaded');
+console.log('ReadEasy.: Simple content script loaded');
 
 // グローバル変数
 let currentSelectedText = '';
@@ -41,7 +41,7 @@ function initialize() {
     }, 500);
   }
 
-  console.log('Text-Simpler: Simple content script initialized');
+  console.log('ReadEasy.: Simple content script initialized');
 }
 
 // デバウンス用のタイマー
@@ -74,7 +74,7 @@ function handleTextSelection() {
           action: 'textSelected',
           text: selectedText
         }).catch(error => {
-          console.error('Text-Simpler: Failed to send text selection:', error);
+          console.error('ReadEasy.: Failed to send text selection:', error);
         });
       }
 
@@ -84,7 +84,7 @@ function handleTextSelection() {
           detail: { selectedText }
         }));
 
-        console.log('Text-Simpler: Updated floating popup with selected text:',
+        console.log('ReadEasy.: Updated floating popup with selected text:',
           selectedText ? selectedText.substring(0, 50) + '...' : '(no selection)');
       }
     }
@@ -423,7 +423,7 @@ function ensureMarkerStyles() {
   const style = document.createElement('style');
   style.id = 'text-simpler-marker-styles';
   style.textContent = `
-    /* Text-Simpler マーカースタイル - 絶対的なスタイル */
+    /* ReadEasy. マーカースタイル - 絶対的なスタイル */
     .text-simpler-marker {
       display: inline !important;
       position: relative !important;

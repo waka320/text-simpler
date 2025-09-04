@@ -1,5 +1,5 @@
 /**
- * Text-Simpler Gemini API Client Module
+ * ReadEasy. Gemini API Client Module
  * Gemini APIとの通信とレスポンス処理
  */
 

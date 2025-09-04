@@ -1,5 +1,5 @@
 /**
- * Text-Simpler Options Script (シンプル版)
+ * ReadEasy. Options Script (シンプル版)
  * 設定ページのUI制御と設定の保存/読み込み
  */
 
@@ -39,9 +39,9 @@ async function initialize() {
     // UI状態の更新
     updateUI();
 
-    console.log('Text-Simpler: Options page initialized');
+    console.log('ReadEasy.: Options page initialized');
   } catch (error) {
-    console.error('Text-Simpler: Options initialization error:', error);
+    console.error('ReadEasy.: Options initialization error:', error);
     showStatus('初期化エラーが発生しました', 'error');
   }
 }

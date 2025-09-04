@@ -1,5 +1,5 @@
 /**
- * Text-Simpler Floating UI Module
+ * ReadEasy. Floating UI Module
  * フローティングポップアップのUI管理
  */
 
@@ -20,7 +20,7 @@ let floatingState = {
  * UIモジュールの初期化
  */
 function initializeFloatingUI() {
-  console.log('Text-Simpler: Floating UI module loaded');
+  console.log('ReadEasy.: Floating UI module loaded');
 
   // カスタムイベントリスナーの設定
   setupEventListeners();
@@ -81,7 +81,7 @@ async function hideFloatingPopup() {
 
     // ユーザーが閉じたことを記録（次回自動表示しない）
     await setStorageValue('popupUserClosed', true);
-    console.log('Text-Simpler: Popup closed by user, auto-display disabled');
+    console.log('ReadEasy.: Popup closed by user, auto-display disabled');
   }
 }
 
@@ -535,7 +535,7 @@ function createFloatingPopup() {
     <div class="ts-popup-container">
       <!-- ヘッダー（ドラッグハンドル） -->
       <header class="ts-popup-header" id="ts-popup-header">
-        <h1>Text-Simpler</h1>
+        <h1>ReadEasy.</h1>
         <div class="ts-header-controls">
           <button id="ts-settings-btn" class="ts-control-btn ts-settings-btn" title="設定" aria-label="設定">
             <span class="ts-settings-icon">⚙️</span>
@@ -782,7 +782,7 @@ function toggleMinimize() {
     // 元のタイトルに戻す
     const title = floatingPopup.querySelector('.ts-popup-header h1');
     if (title) {
-      title.textContent = 'Text-Simpler';
+      title.textContent = 'ReadEasy.';
     }
   }
 }
@@ -1140,7 +1140,7 @@ async function showMinimizedPopupAutomatically() {
     // ユーザーが明示的に閉じた場合は表示しない
     const userClosed = await getStorageValue('popupUserClosed', false);
     if (userClosed) {
-      console.log('Text-Simpler: Popup auto-display skipped (user closed)');
+      console.log('ReadEasy.: Popup auto-display skipped (user closed)');
       return;
     }
 
@@ -1173,13 +1173,13 @@ async function showMinimizedPopupAutomatically() {
       // 通常のタイトル
       const title = floatingPopup.querySelector('.ts-popup-header h1');
       if (title) {
-        title.textContent = 'Text-Simpler';
+        title.textContent = 'ReadEasy.';
       }
 
-      console.log('Text-Simpler: Auto-displayed expanded popup');
+      console.log('ReadEasy.: Auto-displayed expanded popup');
     }
   } catch (error) {
-    console.error('Text-Simpler: Auto-display error:', error);
+    console.error('ReadEasy.: Auto-display error:', error);
   }
 }
 

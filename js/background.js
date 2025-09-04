@@ -1,5 +1,5 @@
 /**
- * Text-Simpler Background Script (モジュール版)
+ * ReadEasy. Background Script (モジュール版)
  * Manifest V3対応のService Worker
  */
 
@@ -196,11 +196,11 @@ function initializeModules() {
       geminiClient
     };
 
-    console.log('Text-Simpler: All modules initialized successfully');
+    console.log('ReadEasy.: All modules initialized successfully');
     return true;
 
   } catch (error) {
-    console.error('Text-Simpler: Module initialization failed:', error);
+    console.error('ReadEasy.: Module initialization failed:', error);
     return false;
   }
 }
@@ -319,7 +319,7 @@ async function handleMessage(request, sender, sendResponse) {
         });
     }
   } catch (error) {
-    console.error('Text-Simpler: Message handling error:', error);
+    console.error('ReadEasy.: Message handling error:', error);
     sendResponse({
       success: false,
       error: error.message
@@ -468,7 +468,7 @@ chrome.runtime.onInstalled.addListener(async () => {
 
   if (modulesInitialized && modules.settingsManager) {
     const settings = await modules.settingsManager.getSettings();
-    console.log('Text-Simpler: Initialized with settings:', settings);
+    console.log('ReadEasy.: Initialized with settings:', settings);
   }
 });
 
@@ -495,4 +495,4 @@ chrome.action.onClicked.addListener(async (tab) => {
   }
 });
 
-console.log('Text-Simpler: Modular background script loaded');
+console.log('ReadEasy.: Modular background script loaded');

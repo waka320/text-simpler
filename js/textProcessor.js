@@ -1,5 +1,5 @@
 /**
- * Text-Simpler Text Processor Module
+ * ReadEasy. Text Processor Module
  * テキストの分割処理と長文対応
  */
 
