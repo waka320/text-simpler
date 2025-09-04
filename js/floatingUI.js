@@ -447,36 +447,37 @@ function createFloatingPopup() {
       }
       
       .ts-control-btn#ts-minimize-btn {
-        background: #2c2c2c !important;
-        color: white !important;
-        border: 1px solid #2c2c2c !important;
+        background: transparent !important;
+        color: #2c2c2c !important;
+        border: 1px solid #e0e0e0 !important;
         font-weight: 600 !important;
         font-size: 14px !important;
         min-width: 22px !important;
         min-height: 22px !important;
         border-radius: 3px !important;
-        box-shadow: 0 1px 3px rgba(44, 44, 44, 0.2) !important;
+        box-shadow: none !important;
       }
       
       .ts-control-btn#ts-minimize-btn:hover {
-        background: #404040 !important;
-        border-color: #404040 !important;
+        background: #f0f0f0 !important;
+        border-color: #d0d0d0 !important;
         transform: scale(1.05) !important;
-        box-shadow: 0 2px 6px rgba(44, 44, 44, 0.3) !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
       }
       
       /* 最小化状態の「＋」ボタンを特別に目立たせる */
       .ts-control-btn#ts-minimize-btn[title="展開"] {
-        background: #404040 !important;
-        border-color: #404040 !important;
-        box-shadow: 0 2px 6px rgba(44, 44, 44, 0.3) !important;
+        background: #f8f8f8 !important;
+        border-color: #d0d0d0 !important;
+        color: #2c2c2c !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
         animation: pulse 2s infinite !important;
       }
       
       .ts-control-btn#ts-minimize-btn[title="展開"]:hover {
-        background: #2c2c2c !important;
-        border-color: #2c2c2c !important;
-        box-shadow: 0 4px 10px rgba(44, 44, 44, 0.4) !important;
+        background: #f0f0f0 !important;
+        border-color: #c0c0c0 !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
         animation: none !important;
       }
       
