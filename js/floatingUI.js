@@ -1,5 +1,5 @@
 /**
- * Text-Simpler Floating UI Module
+ * ReadEasy. Floating UI Module
  * フローティングポップアップのUI管理
  */
 
@@ -20,7 +20,7 @@ let floatingState = {
  * UIモジュールの初期化
  */
 function initializeFloatingUI() {
-  console.log('Text-Simpler: Floating UI module loaded');
+  console.log('ReadEasy.: Floating UI module loaded');
 
   // カスタムイベントリスナーの設定
   setupEventListeners();
@@ -68,6 +68,9 @@ function showFloatingPopup() {
   // ポップアップの初期化
   initializeFloatingPopup();
 
+  // アイコンのパスを設定
+  setupHeaderIcon();
+
   isPopupVisible = true;
 }
 
@@ -76,12 +79,16 @@ function showFloatingPopup() {
  */
 async function hideFloatingPopup() {
   if (floatingPopup) {
-    floatingPopup.style.display = 'none';
+    // ポップアップを完全に削除
+    if (floatingPopup.parentNode) {
+      floatingPopup.parentNode.removeChild(floatingPopup);
+    }
+    floatingPopup = null;
     isPopupVisible = false;
 
     // ユーザーが閉じたことを記録（次回自動表示しない）
     await setStorageValue('popupUserClosed', true);
-    console.log('Text-Simpler: Popup closed by user, auto-display disabled');
+    console.log('ReadEasy.: Popup closed by user, auto-display disabled');
   }
 }
 
@@ -153,6 +160,26 @@ function createFloatingPopup() {
         align-items: center !important;
         cursor: move !important;
         min-height: 32px !important;
+      }
+      
+      /* ヘッダータイトル部分 */
+      .ts-header-title {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+      }
+      
+      .ts-header-icon {
+        width: 20px !important;
+        height: 20px !important;
+        object-fit: contain !important;
+        flex-shrink: 0 !important;
+        display: block !important;
+        border: none !important;
+        outline: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: transparent !important;
       }
       
       .ts-popup-header h1 {
@@ -403,14 +430,15 @@ function createFloatingPopup() {
         color: #2c2c2c !important;
         font-size: 12px !important;
         cursor: pointer !important;
-        padding: 2px !important;
-        border-radius: 2px !important;
+        padding: 4px !important;
+        border-radius: 3px !important;
         transition: all 0.2s !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        min-width: 20px !important;
-        min-height: 20px !important;
+        min-width: 24px !important;
+        min-height: 24px !important;
+        user-select: none !important;
       }
       
       .ts-control-btn:hover {
@@ -419,37 +447,51 @@ function createFloatingPopup() {
       }
       
       .ts-control-btn#ts-minimize-btn {
-        background: #2c2c2c !important;
-        color: white !important;
-        border: 1px solid #2c2c2c !important;
+        background: transparent !important;
+        color: #2c2c2c !important;
+        border: 1px solid #e0e0e0 !important;
         font-weight: 600 !important;
         font-size: 14px !important;
         min-width: 22px !important;
         min-height: 22px !important;
         border-radius: 3px !important;
-        box-shadow: 0 1px 3px rgba(44, 44, 44, 0.2) !important;
+        box-shadow: none !important;
       }
       
       .ts-control-btn#ts-minimize-btn:hover {
-        background: #404040 !important;
-        border-color: #404040 !important;
+        background: #f0f0f0 !important;
+        border-color: #d0d0d0 !important;
         transform: scale(1.05) !important;
-        box-shadow: 0 2px 6px rgba(44, 44, 44, 0.3) !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
       }
       
       /* 最小化状態の「＋」ボタンを特別に目立たせる */
       .ts-control-btn#ts-minimize-btn[title="展開"] {
-        background: #404040 !important;
-        border-color: #404040 !important;
-        box-shadow: 0 2px 6px rgba(44, 44, 44, 0.3) !important;
+        background: #f8f8f8 !important;
+        border-color: #d0d0d0 !important;
+        color: #2c2c2c !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
         animation: pulse 2s infinite !important;
       }
       
       .ts-control-btn#ts-minimize-btn[title="展開"]:hover {
-        background: #2c2c2c !important;
-        border-color: #2c2c2c !important;
-        box-shadow: 0 4px 10px rgba(44, 44, 44, 0.4) !important;
+        background: #f0f0f0 !important;
+        border-color: #c0c0c0 !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
         animation: none !important;
+      }
+      
+      /* 閉じるボタンの特別なスタイル */
+      .ts-control-btn#ts-close-btn {
+        color: #666666 !important;
+        font-weight: bold !important;
+        font-size: 14px !important;
+      }
+      
+      .ts-control-btn#ts-close-btn:hover {
+        background-color: #ffebee !important;
+        color: #d32f2f !important;
+        transform: scale(1.1) !important;
       }
       
       @keyframes pulse {
@@ -535,7 +577,10 @@ function createFloatingPopup() {
     <div class="ts-popup-container">
       <!-- ヘッダー（ドラッグハンドル） -->
       <header class="ts-popup-header" id="ts-popup-header">
-        <h1>Text-Simpler</h1>
+        <div class="ts-header-title">
+          <img src="" alt="ReadEasy." class="ts-header-icon">
+          <h1>ReadEasy.</h1>
+        </div>
         <div class="ts-header-controls">
           <button id="ts-settings-btn" class="ts-control-btn ts-settings-btn" title="設定" aria-label="設定">
             <span class="ts-settings-icon">⚙️</span>
@@ -625,6 +670,36 @@ function createFloatingPopup() {
 }
 
 /**
+ * ヘッダーアイコンのパスを設定
+ */
+function setupHeaderIcon() {
+  try {
+    const iconElement = floatingPopup.querySelector('.ts-header-icon');
+    if (iconElement) {
+      const iconUrl = chrome.runtime.getURL('icons/icon32.png');
+      console.log('ReadEasy.: Setting header icon URL:', iconUrl);
+      iconElement.src = iconUrl;
+
+      // アイコンの読み込みエラーをハンドリング
+      iconElement.onerror = () => {
+        console.error('ReadEasy.: Failed to load header icon, using fallback');
+        // フォールバック: テキストアイコンを使用
+        iconElement.style.display = 'none';
+      };
+
+      // アイコンの読み込み成功をログ
+      iconElement.onload = () => {
+        console.log('ReadEasy.: Header icon loaded successfully');
+      };
+    } else {
+      console.error('ReadEasy.: Header icon element not found');
+    }
+  } catch (error) {
+    console.error('ReadEasy.: Error setting up header icon:', error);
+  }
+}
+
+/**
  * フローティングポップアップの初期化
  */
 function initializeFloatingPopup() {
@@ -643,6 +718,11 @@ function initializeFloatingPopup() {
   setTimeout(() => {
     updateApiKeyGuideVisibility();
   }, 100);
+
+  // アイコンの設定を少し遅延して実行（DOMの準備を待つ）
+  setTimeout(() => {
+    setupHeaderIcon();
+  }, 50);
 }
 
 /**
@@ -709,9 +789,29 @@ function setupFloatingPopupEventListeners() {
 
   // 閉じるボタン
   const closeBtn = floatingPopup.querySelector('#ts-close-btn');
-  closeBtn.addEventListener('click', () => {
-    document.dispatchEvent(new CustomEvent('ts-hide-popup'));
-  });
+  if (closeBtn) {
+    console.log('ReadEasy.: Setting up close button event listener');
+    closeBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('ReadEasy.: Close button clicked');
+
+      try {
+        await hideFloatingPopup();
+        console.log('ReadEasy.: Popup hidden successfully');
+      } catch (error) {
+        console.error('ReadEasy.: Failed to hide popup:', error);
+        // フォールバック: 直接非表示にする
+        if (floatingPopup) {
+          floatingPopup.style.display = 'none';
+          isPopupVisible = false;
+          console.log('ReadEasy.: Popup hidden using fallback method');
+        }
+      }
+    });
+  } else {
+    console.error('ReadEasy.: Close button not found');
+  }
 
   // モードタブ
   const modeTabs = floatingPopup.querySelectorAll('.ts-mode-tab');
@@ -767,6 +867,12 @@ function toggleMinimize() {
 
     // 最小化状態でのタイトル更新
     updateMinimizedTitle();
+
+    // アイコンを非表示にする
+    const icon = floatingPopup.querySelector('.ts-header-icon');
+    if (icon) {
+      icon.style.display = 'none';
+    }
   } else {
     // 展開状態
     if (main) main.style.display = 'block';
@@ -782,7 +888,13 @@ function toggleMinimize() {
     // 元のタイトルに戻す
     const title = floatingPopup.querySelector('.ts-popup-header h1');
     if (title) {
-      title.textContent = 'Text-Simpler';
+      title.textContent = 'ReadEasy.';
+    }
+
+    // アイコンも表示状態に戻す
+    const icon = floatingPopup.querySelector('.ts-header-icon');
+    if (icon) {
+      icon.style.display = 'block';
     }
   }
 }
@@ -808,10 +920,22 @@ function updateMinimizedTitle(selectedText = null) {
       : selectedText;
     title.textContent = `📝 ${truncated}`;
     title.style.fontSize = '12px';
+
+    // 最小化時はアイコンを非表示
+    const icon = floatingPopup.querySelector('.ts-header-icon');
+    if (icon) {
+      icon.style.display = 'none';
+    }
   } else {
     // 選択テキストがない場合
     title.textContent = '📝 テキストを選択';
     title.style.fontSize = '12px';
+
+    // 最小化時はアイコンを非表示
+    const icon = floatingPopup.querySelector('.ts-header-icon');
+    if (icon) {
+      icon.style.display = 'none';
+    }
   }
 }
 
@@ -1140,7 +1264,7 @@ async function showMinimizedPopupAutomatically() {
     // ユーザーが明示的に閉じた場合は表示しない
     const userClosed = await getStorageValue('popupUserClosed', false);
     if (userClosed) {
-      console.log('Text-Simpler: Popup auto-display skipped (user closed)');
+      console.log('ReadEasy.: Popup auto-display skipped (user closed)');
       return;
     }
 
@@ -1173,13 +1297,13 @@ async function showMinimizedPopupAutomatically() {
       // 通常のタイトル
       const title = floatingPopup.querySelector('.ts-popup-header h1');
       if (title) {
-        title.textContent = 'Text-Simpler';
+        title.textContent = 'ReadEasy.';
       }
 
-      console.log('Text-Simpler: Auto-displayed expanded popup');
+      console.log('ReadEasy.: Auto-displayed expanded popup');
     }
   } catch (error) {
-    console.error('Text-Simpler: Auto-display error:', error);
+    console.error('ReadEasy.: Auto-display error:', error);
   }
 }
 

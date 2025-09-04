@@ -1,5 +1,5 @@
 /**
- * Text-Simpler Prompt Engine Module
+ * ReadEasy. Prompt Engine Module
  * AIに送るプロンプトの生成と管理
  */
 
