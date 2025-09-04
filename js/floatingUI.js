@@ -76,7 +76,11 @@ function showFloatingPopup() {
  */
 async function hideFloatingPopup() {
   if (floatingPopup) {
-    floatingPopup.style.display = 'none';
+    // ポップアップを完全に削除
+    if (floatingPopup.parentNode) {
+      floatingPopup.parentNode.removeChild(floatingPopup);
+    }
+    floatingPopup = null;
     isPopupVisible = false;
 
     // ユーザーが閉じたことを記録（次回自動表示しない）
@@ -403,14 +407,15 @@ function createFloatingPopup() {
         color: #2c2c2c !important;
         font-size: 12px !important;
         cursor: pointer !important;
-        padding: 2px !important;
-        border-radius: 2px !important;
+        padding: 4px !important;
+        border-radius: 3px !important;
         transition: all 0.2s !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        min-width: 20px !important;
-        min-height: 20px !important;
+        min-width: 24px !important;
+        min-height: 24px !important;
+        user-select: none !important;
       }
       
       .ts-control-btn:hover {
@@ -450,6 +455,19 @@ function createFloatingPopup() {
         border-color: #2c2c2c !important;
         box-shadow: 0 4px 10px rgba(44, 44, 44, 0.4) !important;
         animation: none !important;
+      }
+      
+      /* 閉じるボタンの特別なスタイル */
+      .ts-control-btn#ts-close-btn {
+        color: #666666 !important;
+        font-weight: bold !important;
+        font-size: 14px !important;
+      }
+      
+      .ts-control-btn#ts-close-btn:hover {
+        background-color: #ffebee !important;
+        color: #d32f2f !important;
+        transform: scale(1.1) !important;
       }
       
       @keyframes pulse {
@@ -709,9 +727,29 @@ function setupFloatingPopupEventListeners() {
 
   // 閉じるボタン
   const closeBtn = floatingPopup.querySelector('#ts-close-btn');
-  closeBtn.addEventListener('click', () => {
-    document.dispatchEvent(new CustomEvent('ts-hide-popup'));
-  });
+  if (closeBtn) {
+    console.log('ReadEasy.: Setting up close button event listener');
+    closeBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('ReadEasy.: Close button clicked');
+
+      try {
+        await hideFloatingPopup();
+        console.log('ReadEasy.: Popup hidden successfully');
+      } catch (error) {
+        console.error('ReadEasy.: Failed to hide popup:', error);
+        // フォールバック: 直接非表示にする
+        if (floatingPopup) {
+          floatingPopup.style.display = 'none';
+          isPopupVisible = false;
+          console.log('ReadEasy.: Popup hidden using fallback method');
+        }
+      }
+    });
+  } else {
+    console.error('ReadEasy.: Close button not found');
+  }
 
   // モードタブ
   const modeTabs = floatingPopup.querySelectorAll('.ts-mode-tab');
