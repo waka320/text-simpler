@@ -68,6 +68,9 @@ function showFloatingPopup() {
   // ポップアップの初期化
   initializeFloatingPopup();
 
+  // アイコンのパスを設定
+  setupHeaderIcon();
+
   isPopupVisible = true;
 }
 
@@ -157,6 +160,26 @@ function createFloatingPopup() {
         align-items: center !important;
         cursor: move !important;
         min-height: 32px !important;
+      }
+      
+      /* ヘッダータイトル部分 */
+      .ts-header-title {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+      }
+      
+      .ts-header-icon {
+        width: 20px !important;
+        height: 20px !important;
+        object-fit: contain !important;
+        flex-shrink: 0 !important;
+        display: block !important;
+        border: none !important;
+        outline: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: transparent !important;
       }
       
       .ts-popup-header h1 {
@@ -553,7 +576,10 @@ function createFloatingPopup() {
     <div class="ts-popup-container">
       <!-- ヘッダー（ドラッグハンドル） -->
       <header class="ts-popup-header" id="ts-popup-header">
-        <h1>ReadEasy.</h1>
+        <div class="ts-header-title">
+          <img src="" alt="ReadEasy." class="ts-header-icon">
+          <h1>ReadEasy.</h1>
+        </div>
         <div class="ts-header-controls">
           <button id="ts-settings-btn" class="ts-control-btn ts-settings-btn" title="設定" aria-label="設定">
             <span class="ts-settings-icon">⚙️</span>
@@ -643,6 +669,36 @@ function createFloatingPopup() {
 }
 
 /**
+ * ヘッダーアイコンのパスを設定
+ */
+function setupHeaderIcon() {
+  try {
+    const iconElement = floatingPopup.querySelector('.ts-header-icon');
+    if (iconElement) {
+      const iconUrl = chrome.runtime.getURL('icons/icon32.png');
+      console.log('ReadEasy.: Setting header icon URL:', iconUrl);
+      iconElement.src = iconUrl;
+
+      // アイコンの読み込みエラーをハンドリング
+      iconElement.onerror = () => {
+        console.error('ReadEasy.: Failed to load header icon, using fallback');
+        // フォールバック: テキストアイコンを使用
+        iconElement.style.display = 'none';
+      };
+
+      // アイコンの読み込み成功をログ
+      iconElement.onload = () => {
+        console.log('ReadEasy.: Header icon loaded successfully');
+      };
+    } else {
+      console.error('ReadEasy.: Header icon element not found');
+    }
+  } catch (error) {
+    console.error('ReadEasy.: Error setting up header icon:', error);
+  }
+}
+
+/**
  * フローティングポップアップの初期化
  */
 function initializeFloatingPopup() {
@@ -661,6 +717,11 @@ function initializeFloatingPopup() {
   setTimeout(() => {
     updateApiKeyGuideVisibility();
   }, 100);
+
+  // アイコンの設定を少し遅延して実行（DOMの準備を待つ）
+  setTimeout(() => {
+    setupHeaderIcon();
+  }, 50);
 }
 
 /**
@@ -805,6 +866,12 @@ function toggleMinimize() {
 
     // 最小化状態でのタイトル更新
     updateMinimizedTitle();
+
+    // アイコンを非表示にする
+    const icon = floatingPopup.querySelector('.ts-header-icon');
+    if (icon) {
+      icon.style.display = 'none';
+    }
   } else {
     // 展開状態
     if (main) main.style.display = 'block';
@@ -821,6 +888,12 @@ function toggleMinimize() {
     const title = floatingPopup.querySelector('.ts-popup-header h1');
     if (title) {
       title.textContent = 'ReadEasy.';
+    }
+
+    // アイコンも表示状態に戻す
+    const icon = floatingPopup.querySelector('.ts-header-icon');
+    if (icon) {
+      icon.style.display = 'block';
     }
   }
 }
@@ -846,10 +919,22 @@ function updateMinimizedTitle(selectedText = null) {
       : selectedText;
     title.textContent = `📝 ${truncated}`;
     title.style.fontSize = '12px';
+
+    // 最小化時はアイコンを非表示
+    const icon = floatingPopup.querySelector('.ts-header-icon');
+    if (icon) {
+      icon.style.display = 'none';
+    }
   } else {
     // 選択テキストがない場合
     title.textContent = '📝 テキストを選択';
     title.style.fontSize = '12px';
+
+    // 最小化時はアイコンを非表示
+    const icon = floatingPopup.querySelector('.ts-header-icon');
+    if (icon) {
+      icon.style.display = 'none';
+    }
   }
 }
 
