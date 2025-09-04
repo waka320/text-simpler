@@ -131,22 +131,22 @@ function createFloatingPopup() {
         z-index: 10000 !important;
         width: 320px !important;
         max-height: 400px !important;
-        background: white !important;
-        border: 1px solid #ddd !important;
+        background: #ffffff !important;
+        border: 1px solid #e0e0e0 !important;
         border-radius: 4px !important;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
         font-size: 12px !important;
         line-height: 1.3 !important;
-        color: #333 !important;
+        color: #2c2c2c !important;
         overflow: hidden !important;
         display: block !important;
       }
       
       /* ポップアップヘッダー */
       .ts-popup-header {
-        background: #f8f9fa !important;
-        border-bottom: 1px solid #e9ecef !important;
+        background: #f5f5f5 !important;
+        border-bottom: 1px solid #e0e0e0 !important;
         padding: 6px 10px !important;
         display: flex !important;
         justify-content: space-between !important;
@@ -159,7 +159,7 @@ function createFloatingPopup() {
         margin: 0 !important;
         font-size: 13px !important;
         font-weight: 600 !important;
-        color: #333 !important;
+        color: #2c2c2c !important;
       }
       
       /* ポップアップメイン */
@@ -169,12 +169,12 @@ function createFloatingPopup() {
       
       /* 選択テキストプレビュー */
       .ts-selected-text-preview {
-        background: #f8f9fa !important;
-        border: 1px solid #e9ecef !important;
+        background: #fafafa !important;
+        border: 1px solid #e0e0e0 !important;
         border-radius: 3px !important;
         padding: 6px 8px !important;
         font-size: 11px !important;
-        color: #666 !important;
+        color: #666666 !important;
         max-height: 120px !important;
         overflow-y: auto !important;
         word-wrap: break-word !important;
@@ -189,35 +189,35 @@ function createFloatingPopup() {
       }
       
       .ts-selected-text-preview::-webkit-scrollbar-track {
-        background: #f1f1f1 !important;
+        background: #f0f0f0 !important;
         border-radius: 3px !important;
       }
       
       .ts-selected-text-preview::-webkit-scrollbar-thumb {
-        background: #c1c1c1 !important;
+        background: #d0d0d0 !important;
         border-radius: 3px !important;
       }
       
       .ts-selected-text-preview::-webkit-scrollbar-thumb:hover {
-        background: #a8a8a8 !important;
+        background: #b0b0b0 !important;
       }
       
       .ts-selected-text-preview.ts-has-text {
-        color: #333 !important;
-        background: #e8f5e8 !important;
-        border-color: #c3e6c3 !important;
+        color: #2c2c2c !important;
+        background: #f8f8f8 !important;
+        border-color: #d0d0d0 !important;
       }
       
       .ts-selected-text-preview.ts-no-text {
         font-style: italic !important;
-        color: #999 !important;
+        color: #999999 !important;
       }
       
       /* 変換ボタン */
       .ts-transform-btn {
         width: 100% !important;
         padding: 8px !important;
-        background: #007bff !important;
+        background: #2c2c2c !important;
         color: white !important;
         border: none !important;
         border-radius: 3px !important;
@@ -229,11 +229,11 @@ function createFloatingPopup() {
       }
       
       .ts-transform-btn:hover:not(:disabled) {
-        background: #0056b3 !important;
+        background: #404040 !important;
       }
       
       .ts-transform-btn:disabled {
-        background: #6c757d !important;
+        background: #b0b0b0 !important;
         cursor: not-allowed !important;
         opacity: 0.6 !important;
       }
@@ -242,7 +242,7 @@ function createFloatingPopup() {
       .ts-undo-all-btn {
         width: 100% !important;
         padding: 6px !important;
-        background: #dc3545 !important;
+        background: #666666 !important;
         color: white !important;
         border: none !important;
         border-radius: 3px !important;
@@ -252,14 +252,14 @@ function createFloatingPopup() {
       }
       
       .ts-undo-all-btn:hover {
-        background: #c82333 !important;
+        background: #808080 !important;
       }
       
       /* エラー表示 */
       .ts-error-section {
-        background: #f8d7da !important;
-        color: #721c24 !important;
-        border: 1px solid #f5c6cb !important;
+        background: #f5f5f5 !important;
+        color: #2c2c2c !important;
+        border: 1px solid #e0e0e0 !important;
         border-radius: 4px !important;
         padding: 12px !important;
         margin-bottom: 12px !important;
@@ -280,12 +280,12 @@ function createFloatingPopup() {
       }
       
       .ts-retry-btn {
-        background: #007bff !important;
+        background: #2c2c2c !important;
         color: white !important;
       }
       
       .ts-close-error-btn {
-        background: #6c757d !important;
+        background: #666666 !important;
         color: white !important;
       }
       
@@ -296,8 +296,8 @@ function createFloatingPopup() {
       }
       
       .ts-spinner {
-        border: 3px solid #f3f3f3 !important;
-        border-top: 3px solid #007bff !important;
+        border: 3px solid #f0f0f0 !important;
+        border-top: 3px solid #2c2c2c !important;
         border-radius: 50% !important;
         width: 30px !important;
         height: 30px !important;
@@ -312,7 +312,7 @@ function createFloatingPopup() {
       
       .ts-loading-message {
         font-size: 14px !important;
-        color: #666 !important;
+        color: #666666 !important;
       }
       
       /* モードタブ */
@@ -325,9 +325,9 @@ function createFloatingPopup() {
       
       .ts-mode-tab {
         padding: 5px 4px !important;
-        border: 1px solid #ccc !important;
-        background: #fff !important;
-        color: #333 !important;
+        border: 1px solid #e0e0e0 !important;
+        background: #ffffff !important;
+        color: #2c2c2c !important;
         font-size: 9px !important;
         cursor: pointer !important;
         border-radius: 2px !important;
@@ -337,31 +337,31 @@ function createFloatingPopup() {
       }
       
       .ts-mode-tab:hover {
-        background: #f5f5f5 !important;
-        border-color: #999 !important;
+        background: #f0f0f0 !important;
+        border-color: #d0d0d0 !important;
       }
       
       .ts-mode-tab.ts-active {
-        background: #333 !important;
+        background: #2c2c2c !important;
         color: white !important;
-        border-color: #333 !important;
+        border-color: #2c2c2c !important;
       }
       
       /* 学年レベル選択 */
       .ts-grade-dropdown select {
         width: 100% !important;
         padding: 4px 6px !important;
-        border: 1px solid #ccc !important;
+        border: 1px solid #e0e0e0 !important;
         border-radius: 2px !important;
         background: white !important;
         font-size: 10px !important;
-        color: #333 !important;
+        color: #2c2c2c !important;
         cursor: pointer !important;
       }
       
       .ts-grade-dropdown select:focus {
         outline: none !important;
-        border-color: #333 !important;
+        border-color: #2c2c2c !important;
       }
       
       /* ヘッダーコントロール */
@@ -374,7 +374,7 @@ function createFloatingPopup() {
       .ts-settings-btn {
         background: none !important;
         border: none !important;
-        color: #333 !important;
+        color: #2c2c2c !important;
         font-size: 14px !important;
         cursor: pointer !important;
         padding: 2px !important;
@@ -388,7 +388,7 @@ function createFloatingPopup() {
       }
       
       .ts-settings-btn:hover {
-        background-color: rgba(0, 0, 0, 0.1) !important;
+        background-color: #f0f0f0 !important;
         transform: scale(1.05) !important;
       }
       
@@ -400,7 +400,7 @@ function createFloatingPopup() {
       .ts-control-btn {
         background: none !important;
         border: none !important;
-        color: #333 !important;
+        color: #2c2c2c !important;
         font-size: 12px !important;
         cursor: pointer !important;
         padding: 2px !important;
@@ -414,41 +414,41 @@ function createFloatingPopup() {
       }
       
       .ts-control-btn:hover {
-        background-color: rgba(0, 0, 0, 0.1) !important;
+        background-color: #f0f0f0 !important;
         transform: scale(1.05) !important;
       }
       
       .ts-control-btn#ts-minimize-btn {
-        background: #007bff !important;
+        background: #2c2c2c !important;
         color: white !important;
-        border: 1px solid #007bff !important;
+        border: 1px solid #2c2c2c !important;
         font-weight: 600 !important;
         font-size: 14px !important;
         min-width: 22px !important;
         min-height: 22px !important;
         border-radius: 3px !important;
-        box-shadow: 0 1px 3px rgba(0, 123, 255, 0.3) !important;
+        box-shadow: 0 1px 3px rgba(44, 44, 44, 0.2) !important;
       }
       
       .ts-control-btn#ts-minimize-btn:hover {
-        background: #0056b3 !important;
-        border-color: #0056b3 !important;
+        background: #404040 !important;
+        border-color: #404040 !important;
         transform: scale(1.05) !important;
-        box-shadow: 0 2px 6px rgba(0, 123, 255, 0.4) !important;
+        box-shadow: 0 2px 6px rgba(44, 44, 44, 0.3) !important;
       }
       
       /* 最小化状態の「＋」ボタンを特別に目立たせる */
       .ts-control-btn#ts-minimize-btn[title="展開"] {
-        background: #28a745 !important;
-        border-color: #28a745 !important;
-        box-shadow: 0 2px 6px rgba(40, 167, 69, 0.4) !important;
+        background: #404040 !important;
+        border-color: #404040 !important;
+        box-shadow: 0 2px 6px rgba(44, 44, 44, 0.3) !important;
         animation: pulse 2s infinite !important;
       }
       
       .ts-control-btn#ts-minimize-btn[title="展開"]:hover {
-        background: #218838 !important;
-        border-color: #218838 !important;
-        box-shadow: 0 4px 10px rgba(40, 167, 69, 0.6) !important;
+        background: #2c2c2c !important;
+        border-color: #2c2c2c !important;
+        box-shadow: 0 4px 10px rgba(44, 44, 44, 0.4) !important;
         animation: none !important;
       }
       
@@ -460,13 +460,13 @@ function createFloatingPopup() {
       
       /* APIキー案内 */
       .ts-api-key-guide {
-        background: #fff3cd !important;
-        color: #856404 !important;
+        background: #f8f8f8 !important;
+        color: #2c2c2c !important;
         padding: 12px !important;
         border-radius: 6px !important;
         margin-bottom: 12px !important;
-        border: 1px solid #ffeaa7 !important;
-        box-shadow: 0 2px 4px rgba(255, 193, 7, 0.1) !important;
+        border: 1px solid #e0e0e0 !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
       }
       
       .ts-guide-content {
@@ -478,7 +478,7 @@ function createFloatingPopup() {
       .ts-guide-icon {
         font-size: 18px !important;
         flex-shrink: 0 !important;
-        color: #856404 !important;
+        color: #666666 !important;
       }
       
       .ts-guide-text {
@@ -489,20 +489,20 @@ function createFloatingPopup() {
         margin: 0 0 2px 0 !important;
         font-size: 13px !important;
         font-weight: 600 !important;
-        color: #856404 !important;
+        color: #2c2c2c !important;
       }
       
       .ts-guide-text p {
         margin: 0 !important;
         font-size: 11px !important;
-        color: #856404 !important;
+        color: #666666 !important;
         line-height: 1.2 !important;
-        opacity: 0.8 !important;
+        opacity: 0.9 !important;
       }
       
       .ts-setup-btn {
-        background: #856404 !important;
-        border: 1px solid #856404 !important;
+        background: #2c2c2c !important;
+        border: 1px solid #2c2c2c !important;
         color: white !important;
         padding: 6px 12px !important;
         border-radius: 4px !important;
@@ -514,10 +514,10 @@ function createFloatingPopup() {
       }
       
       .ts-setup-btn:hover {
-        background: #6d5204 !important;
-        border-color: #6d5204 !important;
+        background: #404040 !important;
+        border-color: #404040 !important;
         transform: translateY(-1px) !important;
-        box-shadow: 0 2px 4px rgba(133, 100, 4, 0.3) !important;
+        box-shadow: 0 2px 4px rgba(44, 44, 44, 0.2) !important;
       }
       
       /* セクションスタイル */
@@ -526,10 +526,10 @@ function createFloatingPopup() {
       }
       
       .ts-grade-section {
-        background: #f9f9f9 !important;
+        background: #f8f8f8 !important;
         padding: 6px !important;
         border-radius: 2px !important;
-        border: 1px solid #ddd !important;
+        border: 1px solid #e0e0e0 !important;
       }
     </style>
     <div class="ts-popup-container">
