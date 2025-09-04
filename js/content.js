@@ -104,7 +104,7 @@ function setupFloatingUIIntegration() {
 
   // 変換リクエストの処理
   document.addEventListener('ts-transform-request', async (event) => {
-    const { mode, level } = event.detail;
+    const { modes, level } = event.detail;
 
     if (!currentSelectedText) {
       document.dispatchEvent(new CustomEvent('ts-transform-error', {
@@ -114,11 +114,11 @@ function setupFloatingUIIntegration() {
     }
 
     try {
-      // バックグラウンドに変換リクエスト
+      // バックグラウンドに変換リクエスト（複数モード対応）
       const response = await chrome.runtime.sendMessage({
         action: 'transform',
         text: currentSelectedText,
-        mode: mode || 'lexicon',
+        modes: modes || ['lexicon'],
         level: level || 'junior'
       });
 

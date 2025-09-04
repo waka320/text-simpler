@@ -9,7 +9,7 @@ let isPopupVisible = false;
 
 // フローティングポップアップの状態管理
 let floatingState = {
-  mode: 'lexicon',
+  modes: [], // 初期状態は空選択（ユーザーが意図的に選択）
   gradeLevel: 'junior',
   isMinimized: false,
   isProcessing: false,
@@ -114,7 +114,10 @@ function handleUpdateSelectedText(event) {
  */
 function handleUpdateSettings(event) {
   const { mode, gradeLevel } = event.detail;
-  if (mode) floatingState.mode = mode;
+  if (mode) {
+    // 単一モードの場合は配列に変換
+    floatingState.modes = Array.isArray(mode) ? mode : [mode];
+  }
   if (gradeLevel) floatingState.gradeLevel = gradeLevel;
 
   if (isPopupVisible) {
@@ -208,6 +211,7 @@ function createFloatingPopup() {
         margin-bottom: 8px !important;
         line-height: 1.4 !important;
         white-space: pre-wrap !important;
+        text-align: left !important;
       }
       
       /* スクロールバーのスタイル */
@@ -276,6 +280,7 @@ function createFloatingPopup() {
         font-size: 11px !important;
         cursor: pointer !important;
         transition: background-color 0.2s !important;
+        text-align: center !important;
       }
       
       .ts-undo-all-btn:hover {
@@ -347,43 +352,68 @@ function createFloatingPopup() {
         display: grid !important;
         grid-template-columns: 1fr 1fr 1fr !important;
         gap: 3px !important;
-        margin-bottom: 6px !important;
+        margin-bottom: 8px !important;
       }
       
       .ts-mode-tab {
-        padding: 5px 4px !important;
+        padding: 4px 2px !important;
         border: 1px solid #e0e0e0 !important;
         background: #ffffff !important;
         color: #2c2c2c !important;
-        font-size: 9px !important;
+        font-size: 10px !important;
         cursor: pointer !important;
         border-radius: 2px !important;
         transition: all 0.2s !important;
         text-align: center !important;
-        line-height: 1.1 !important;
+        line-height: 1.2 !important;
+        font-weight: 500 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
       }
       
       .ts-mode-tab:hover {
-        background: #f0f0f0 !important;
-        border-color: #d0d0d0 !important;
+        background: #f8f8f8 !important;
+        border-color: #c0c0c0 !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
       }
       
       .ts-mode-tab.ts-active {
         background: #2c2c2c !important;
         color: white !important;
         border-color: #2c2c2c !important;
+        box-shadow: 0 2px 6px rgba(44, 44, 44, 0.2) !important;
+      }
+      
+      .ts-mode-tab.ts-empty-state {
+        background: #f0f0f0 !important;
+        color: #666666 !important;
+        border-color: #d0d0d0 !important;
+        font-style: italic !important;
       }
       
       /* 学年レベル選択 */
+      .ts-grade-dropdown {
+        position: relative !important;
+      }
+      
       .ts-grade-dropdown select {
         width: 100% !important;
-        padding: 4px 6px !important;
+        padding: 4px 20px 4px 6px !important;
         border: 1px solid #e0e0e0 !important;
         border-radius: 2px !important;
         background: white !important;
         font-size: 10px !important;
         color: #2c2c2c !important;
         cursor: pointer !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 6px center !important;
+        background-size: 12px !important;
       }
       
       .ts-grade-dropdown select:focus {
@@ -595,9 +625,9 @@ function createFloatingPopup() {
         <!-- モード選択 -->
         <section class="ts-mode-section">
           <div class="ts-mode-tabs">
-            <button class="ts-mode-tab ts-active" data-mode="lexicon">語・記号の意味がわからない</button>
-            <button class="ts-mode-tab" data-mode="load">情報量が多すぎる</button>
-            <button class="ts-mode-tab" data-mode="cohesion">文と文の関係がわからない</button>
+            <button class="ts-mode-tab" data-mode="lexicon">言葉をやさしく</button>
+            <button class="ts-mode-tab" data-mode="load">文を要約</button>
+            <button class="ts-mode-tab" data-mode="cohesion">流れを見やすく</button>
           </div>
         </section>
 
@@ -915,8 +945,8 @@ function updateMinimizedTitle(selectedText = null) {
 
   if (selectedText && selectedText.length > 0) {
     // 選択テキストがある場合（最小化時は短く表示）
-    const truncated = selectedText.length > 20
-      ? selectedText.substring(0, 20) + '...'
+    const truncated = selectedText.length > 18
+      ? selectedText.substring(0, 18) + '...'
       : selectedText;
     title.textContent = `📝 ${truncated}`;
     title.style.fontSize = '12px';
@@ -945,10 +975,14 @@ function updateMinimizedTitle(selectedText = null) {
 function updateFloatingPopupUI() {
   if (!floatingPopup) return;
 
-  // モードタブの更新
+  // モードタブの更新（複数選択対応）
   const modeTabs = floatingPopup.querySelectorAll('.ts-mode-tab');
+  const isEmptyState = floatingState.modes.length === 0;
+
   modeTabs.forEach(tab => {
-    tab.classList.toggle('ts-active', tab.dataset.mode === floatingState.mode);
+    const isActive = floatingState.modes.includes(tab.dataset.mode);
+    tab.classList.toggle('ts-active', isActive);
+    tab.classList.toggle('ts-empty-state', isEmptyState && !isActive);
   });
 
   // 学年レベルの更新
@@ -1026,7 +1060,15 @@ function updateFloatingTransformButton() {
     document.dispatchEvent(event);
 
     transformBtn.disabled = !hasApiKey || floatingState.isProcessing;
-    transformBtn.textContent = floatingState.isProcessing ? '変換中...' : '変換実行';
+
+    // 変換ボタンのテキストを動的に変更
+    if (floatingState.isProcessing) {
+      transformBtn.textContent = '変換中...';
+    } else if (floatingState.modes.length === 0) {
+      transformBtn.textContent = '変換実行（全て有効）';
+    } else {
+      transformBtn.textContent = '変換実行';
+    }
 
     if (!hasApiKey) {
       transformBtn.title = 'APIキーを設定してください';
@@ -1038,7 +1080,21 @@ function updateFloatingTransformButton() {
 
 // イベントハンドラー関数群
 function handleFloatingModeChange(event) {
-  floatingState.mode = event.target.dataset.mode;
+  const clickedMode = event.target.dataset.mode;
+  const currentModes = floatingState.modes;
+
+  // クリックされたモードが既に選択されているかチェック
+  const isSelected = currentModes.includes(clickedMode);
+
+  if (isSelected) {
+    // 既に選択されている場合は削除
+    floatingState.modes = currentModes.filter(mode => mode !== clickedMode);
+  } else {
+    // 選択されていない場合は追加
+    floatingState.modes = [...currentModes, clickedMode];
+  }
+
+  // 空選択を許可（変換時に全モードが適用される）
   updateFloatingPopupUI();
 }
 
@@ -1055,10 +1111,15 @@ async function handleFloatingTransform() {
     showFloatingLoading();
     updateFloatingPopupUI();
 
-    // content.jsに変換リクエストを送信
+    // content.jsに変換リクエストを送信（複数モード対応）
+    // 空選択の場合は全モードを適用
+    const modesToSend = floatingState.modes.length > 0
+      ? floatingState.modes
+      : ['lexicon', 'load', 'cohesion'];
+
     const transformEvent = new CustomEvent('ts-transform-request', {
       detail: {
-        mode: floatingState.mode,
+        modes: modesToSend,
         level: floatingState.gradeLevel
       }
     });

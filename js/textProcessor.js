@@ -75,7 +75,7 @@ function splitTextIntoChunks(text, maxChunkSize = 800) {
 /**
  * 複数のチャンクを段階的に処理
  */
-async function processLongText({ text, mode, level, apiKey, temperature, model, transformFunction }) {
+async function processLongText({ text, modes, level, apiKey, temperature, model, transformFunction }) {
     console.log('📏 長文処理開始、テキスト長:', text.length);
 
     // テキストをチャンクに分割
@@ -87,7 +87,7 @@ async function processLongText({ text, mode, level, apiKey, temperature, model, 
         console.log('📝 単一チャンク、通常処理を実行');
         const result = await transformFunction({
             text,
-            mode,
+            modes,
             level,
             apiKey,
             temperature,
@@ -124,7 +124,7 @@ async function processLongText({ text, mode, level, apiKey, temperature, model, 
         try {
             const result = await transformFunction({
                 text: chunk,
-                mode,
+                modes,
                 level,
                 apiKey,
                 temperature,
