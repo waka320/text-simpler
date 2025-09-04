@@ -175,10 +175,31 @@ function createFloatingPopup() {
         padding: 6px 8px !important;
         font-size: 11px !important;
         color: #666 !important;
-        max-height: 60px !important;
+        max-height: 120px !important;
         overflow-y: auto !important;
         word-wrap: break-word !important;
         margin-bottom: 8px !important;
+        line-height: 1.4 !important;
+        white-space: pre-wrap !important;
+      }
+      
+      /* スクロールバーのスタイル */
+      .ts-selected-text-preview::-webkit-scrollbar {
+        width: 6px !important;
+      }
+      
+      .ts-selected-text-preview::-webkit-scrollbar-track {
+        background: #f1f1f1 !important;
+        border-radius: 3px !important;
+      }
+      
+      .ts-selected-text-preview::-webkit-scrollbar-thumb {
+        background: #c1c1c1 !important;
+        border-radius: 3px !important;
+      }
+      
+      .ts-selected-text-preview::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8 !important;
       }
       
       .ts-selected-text-preview.ts-has-text {
@@ -781,16 +802,16 @@ function updateMinimizedTitle(selectedText = null) {
   }
 
   if (selectedText && selectedText.length > 0) {
-    // 選択テキストがある場合
-    const truncated = selectedText.length > 15
-      ? selectedText.substring(0, 15) + '...'
+    // 選択テキストがある場合（最小化時は短く表示）
+    const truncated = selectedText.length > 20
+      ? selectedText.substring(0, 20) + '...'
       : selectedText;
     title.textContent = `📝 ${truncated}`;
-    title.style.fontSize = '13px'; // 少し小さく
+    title.style.fontSize = '12px';
   } else {
     // 選択テキストがない場合
     title.textContent = '📝 テキストを選択';
-    title.style.fontSize = '13px';
+    title.style.fontSize = '12px';
   }
 }
 
@@ -840,11 +861,14 @@ function updateFloatingSelectedTextPreview(selectedText = null) {
   }
 
   if (selectedText) {
-    const truncated = selectedText.length > 120
-      ? selectedText.substring(0, 120) + '...'
-      : selectedText;
-    preview.textContent = truncated;
+    // 長いテキストでも省略せずに全体を表示（スクロール可能）
+    preview.textContent = selectedText;
     preview.className = 'ts-selected-text-preview ts-has-text';
+
+    // テキストが長い場合はスクロール位置を最上部に
+    if (preview.scrollTop > 0) {
+      preview.scrollTop = 0;
+    }
   } else {
     preview.textContent = 'テキストを選択してください';
     preview.className = 'ts-selected-text-preview ts-no-text';
