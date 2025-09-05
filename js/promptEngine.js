@@ -57,7 +57,7 @@ const gradePolicies = {
         maxConnectivesPerSentence: 1,
         allowAnnotationOnce: true,
         compressionRatio: [0.5, 0.7],
-        vocabGuideline: '漢語増加許容（和語50%以上、漢語40%以下）。技術文章の全体構造把握。日常場面のテキスト対応。カタカナ専門用語は初出時に用途・目的を説明',
+        vocabGuideline: '漢語増加許容（和語50%以上、漢語40%以下）。文章の全体構造を把握。日常場面のテキスト対応。カタカナ専門用語は初出時に用途・目的を説明',
         abilityDescription: '技術的文章の全体構造を把握。日常的状況のほとんどの日本語テキストを問題なく処理'
     },
     university: {
@@ -68,8 +68,8 @@ const gradePolicies = {
         maxConnectivesPerSentence: 2,
         allowAnnotationOnce: true,
         compressionRatio: [0.55, 0.75],
-        vocabGuideline: '専門語彙許容（漢語50%まで）。技術文章をほぼ理解。文学的複雑構造も対応可能。カタカナ専門用語は初出時に用途・目的を説明',
-        abilityDescription: '技術的文章をほぼ理解。文学作品の複雑な構造を扱える。高度な論理関係の把握'
+        vocabGuideline: '専門語彙許容（漢語50%まで）。文学的複雑構造もある程度対応可能。カタカナ専門用語は初出時に用途・目的を説明',
+        abilityDescription: '文学作品の複雑な構造を扱える。高度な論理関係の把握'
     },
     // 論文Upper-advanced相当
     expert: {
@@ -81,7 +81,7 @@ const gradePolicies = {
         allowAnnotationOnce: false,
         compressionRatio: [0.6, 0.85],
         vocabGuideline: '専門語彙・抽象語彙全面許容。あらゆる文体・分野に対応',
-        abilityDescription: '高度に技術的な文章を完全理解。実質的にあらゆる種類の日本語テキストに対応可能'
+        abilityDescription: '高度に技術的な文章を理解できる。実質的にあらゆる種類の日本語テキストに対応可能'
     }
 };
 

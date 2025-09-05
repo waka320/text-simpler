@@ -133,85 +133,377 @@ function createFloatingPopup() {
   popup.id = 'text-simpler-floating-popup';
   popup.innerHTML = `
     <style>
-      /* ポップアップコンテナのベーススタイル */
+      /* CSSリセット - サイトのスタイルを完全に無効化 */
+      #text-simpler-floating-popup,
+      #text-simpler-floating-popup *,
+      #text-simpler-floating-popup *::before,
+      #text-simpler-floating-popup *::after {
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        font-size: 100% !important;
+        font: inherit !important;
+        vertical-align: baseline !important;
+        background: transparent !important;
+        outline: none !important;
+        text-decoration: none !important;
+        list-style: none !important;
+        quotes: none !important;
+        content: none !important;
+        border-collapse: collapse !important;
+        border-spacing: 0 !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+        -webkit-touch-callout: none !important;
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+        user-select: none !important;
+        -webkit-box-sizing: border-box !important;
+        -moz-box-sizing: border-box !important;
+        box-sizing: border-box !important;
+      }
+
+      /* ポップアップコンテナのベーススタイル - 完全に絶対化 */
       #text-simpler-floating-popup {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 10000 !important;
+        position: fixed !important;
+        top: 20px !important;
+        right: 20px !important;
+        left: auto !important;
+        bottom: auto !important;
+        z-index: 2147483647 !important; /* 最大z-index値 */
         width: 320px !important;
+        min-width: 320px !important;
+        max-width: 320px !important;
+        height: auto !important;
+        min-height: auto !important;
         max-height: 400px !important;
         background: #ffffff !important;
+        background-color: #ffffff !important;
         border: 1px solid #e0e0e0 !important;
         border-radius: 4px !important;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
         font-size: 12px !important;
+        font-weight: normal !important;
         line-height: 1.3 !important;
         color: #2c2c2c !important;
+        text-align: left !important;
+        text-decoration: none !important;
+        text-transform: none !important;
+        letter-spacing: normal !important;
+        word-spacing: normal !important;
         overflow: hidden !important;
         display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+        animation: none !important;
+        filter: none !important;
+        backdrop-filter: none !important;
+        isolation: isolate !important;
+        contain: layout style paint !important;
+        will-change: auto !important;
+        pointer-events: auto !important;
+        cursor: default !important;
+        resize: none !important;
+        clip: auto !important;
+        clip-path: none !important;
+        mask: none !important;
+        mask-image: none !important;
+        mask-size: auto !important;
+        mask-repeat: repeat !important;
+        mask-position: 0% 0% !important;
+        mask-clip: border-box !important;
+        mask-origin: border-box !important;
+        mask-composite: add !important;
+        -webkit-mask: none !important;
+        -webkit-mask-image: none !important;
+        -webkit-mask-size: auto !important;
+        -webkit-mask-repeat: repeat !important;
+        -webkit-mask-position: 0% 0% !important;
+        -webkit-mask-clip: border-box !important;
+        -webkit-mask-origin: border-box !important;
+        -webkit-mask-composite: add !important;
       }
       
-      /* ポップアップヘッダー */
+      /* ポップアップヘッダー - 完全に絶対化 */
       .ts-popup-header {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: auto !important;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: 32px !important;
+        max-height: none !important;
         background: #f5f5f5 !important;
+        background-color: #f5f5f5 !important;
+        border: none !important;
         border-bottom: 1px solid #e0e0e0 !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
         padding: 6px 10px !important;
         display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
         justify-content: space-between !important;
         align-items: center !important;
+        align-content: stretch !important;
+        flex: none !important;
+        flex-grow: 0 !important;
+        flex-shrink: 0 !important;
+        flex-basis: auto !important;
+        order: 0 !important;
+        gap: 0 !important;
         cursor: move !important;
-        min-height: 32px !important;
+        overflow: visible !important;
+        z-index: 1 !important;
+        box-sizing: border-box !important;
       }
       
-      /* ヘッダータイトル部分 */
+      /* ヘッダータイトル部分 - 完全に絶対化 */
       .ts-header-title {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: auto !important;
+        bottom: auto !important;
+        width: auto !important;
+        min-width: auto !important;
+        max-width: none !important;
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
         display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        justify-content: flex-start !important;
         align-items: center !important;
+        align-content: stretch !important;
+        flex: 1 !important;
+        flex-grow: 1 !important;
+        flex-shrink: 1 !important;
+        flex-basis: auto !important;
+        order: 0 !important;
         gap: 8px !important;
+        cursor: default !important;
+        overflow: visible !important;
+        z-index: 1 !important;
+        box-sizing: border-box !important;
       }
       
       .ts-header-icon {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: auto !important;
+        bottom: auto !important;
         width: 20px !important;
+        min-width: 20px !important;
+        max-width: 20px !important;
         height: 20px !important;
-        object-fit: contain !important;
-        flex-shrink: 0 !important;
-        display: block !important;
+        min-height: 20px !important;
+        max-height: 20px !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        background-image: none !important;
+        background-repeat: no-repeat !important;
+        background-position: 0% 0% !important;
+        background-size: auto !important;
+        background-attachment: scroll !important;
+        background-clip: border-box !important;
+        background-origin: padding-box !important;
         border: none !important;
-        outline: none !important;
+        border-radius: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
-        background: transparent !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        object-fit: contain !important;
+        object-position: 50% 50% !important;
+        flex: none !important;
+        flex-grow: 0 !important;
+        flex-shrink: 0 !important;
+        flex-basis: auto !important;
+        order: 0 !important;
+        align-self: auto !important;
+        cursor: default !important;
+        overflow: visible !important;
+        z-index: 1 !important;
+        box-sizing: border-box !important;
+        outline: none !important;
+        box-shadow: none !important;
+        filter: none !important;
+        transform: none !important;
+        transition: none !important;
+        animation: none !important;
       }
       
       .ts-popup-header h1 {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: auto !important;
+        bottom: auto !important;
+        width: auto !important;
+        min-width: auto !important;
+        max-width: none !important;
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
         margin: 0 !important;
+        padding: 0 !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        font-family: inherit !important;
         font-size: 13px !important;
         font-weight: 600 !important;
+        font-style: normal !important;
+        font-variant: normal !important;
+        font-stretch: normal !important;
+        line-height: 1.3 !important;
         color: #2c2c2c !important;
+        text-align: left !important;
+        text-decoration: none !important;
+        text-transform: none !important;
+        text-shadow: none !important;
+        text-indent: 0 !important;
+        letter-spacing: normal !important;
+        word-spacing: normal !important;
+        white-space: normal !important;
+        word-wrap: normal !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        hyphens: none !important;
+        cursor: default !important;
+        overflow: visible !important;
+        z-index: 1 !important;
+        box-sizing: border-box !important;
+        outline: none !important;
+        box-shadow: none !important;
+        filter: none !important;
+        transform: none !important;
+        transition: none !important;
+        animation: none !important;
+        flex: none !important;
+        flex-grow: 0 !important;
+        flex-shrink: 0 !important;
+        flex-basis: auto !important;
+        order: 0 !important;
+        align-self: auto !important;
       }
       
-      /* ポップアップメイン */
+      /* ポップアップメイン - 完全に絶対化 */
       .ts-popup-main {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: auto !important;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
         padding: 10px !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        overflow: visible !important;
+        z-index: 1 !important;
+        box-sizing: border-box !important;
+        outline: none !important;
+        box-shadow: none !important;
+        filter: none !important;
+        transform: none !important;
+        transition: none !important;
+        animation: none !important;
       }
       
-      /* 選択テキストプレビュー */
+      /* 選択テキストプレビュー - 完全に絶対化 */
       .ts-selected-text-preview {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: auto !important;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: auto !important;
+        max-height: 120px !important;
         background: #fafafa !important;
+        background-color: #fafafa !important;
         border: 1px solid #e0e0e0 !important;
         border-radius: 3px !important;
+        margin: 0 0 8px 0 !important;
         padding: 6px 8px !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        font-family: inherit !important;
         font-size: 11px !important;
-        color: #666666 !important;
-        max-height: 120px !important;
-        overflow-y: auto !important;
-        word-wrap: break-word !important;
-        margin-bottom: 8px !important;
+        font-weight: normal !important;
+        font-style: normal !important;
+        font-variant: normal !important;
+        font-stretch: normal !important;
         line-height: 1.4 !important;
-        white-space: pre-wrap !important;
+        color: #666666 !important;
         text-align: left !important;
+        text-decoration: none !important;
+        text-transform: none !important;
+        text-shadow: none !important;
+        text-indent: 0 !important;
+        letter-spacing: normal !important;
+        word-spacing: normal !important;
+        white-space: pre-wrap !important;
+        word-wrap: break-word !important;
+        word-break: normal !important;
+        overflow-wrap: break-word !important;
+        hyphens: none !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        cursor: default !important;
+        z-index: 1 !important;
+        box-sizing: border-box !important;
+        outline: none !important;
+        box-shadow: none !important;
+        filter: none !important;
+        transform: none !important;
+        transition: none !important;
+        animation: none !important;
+        resize: none !important;
+        -webkit-user-select: text !important;
+        -moz-user-select: text !important;
+        -ms-user-select: text !important;
+        user-select: text !important;
       }
       
       /* スクロールバーのスタイル */
@@ -244,47 +536,162 @@ function createFloatingPopup() {
         color: #999999 !important;
       }
       
-      /* 変換ボタン */
+      /* 変換ボタン - 完全に絶対化 */
       .ts-transform-btn {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: auto !important;
         width: 100% !important;
-        padding: 8px !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
         background: #2c2c2c !important;
-        color: white !important;
+        background-color: #2c2c2c !important;
+        background-image: none !important;
+        background-repeat: no-repeat !important;
+        background-position: 0% 0% !important;
+        background-size: auto !important;
+        background-attachment: scroll !important;
+        background-clip: border-box !important;
+        background-origin: padding-box !important;
         border: none !important;
         border-radius: 3px !important;
+        margin: 0 0 6px 0 !important;
+        padding: 8px !important;
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        font-family: inherit !important;
         font-size: 12px !important;
         font-weight: 500 !important;
+        font-style: normal !important;
+        font-variant: normal !important;
+        font-stretch: normal !important;
+        line-height: 1.3 !important;
+        color: white !important;
+        text-align: center !important;
+        text-decoration: none !important;
+        text-transform: none !important;
+        text-shadow: none !important;
+        text-indent: 0 !important;
+        letter-spacing: normal !important;
+        word-spacing: normal !important;
+        white-space: nowrap !important;
+        word-wrap: normal !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        hyphens: none !important;
+        overflow: visible !important;
         cursor: pointer !important;
+        z-index: 1 !important;
+        box-sizing: border-box !important;
+        outline: none !important;
+        box-shadow: none !important;
+        filter: none !important;
+        transform: none !important;
         transition: background-color 0.2s !important;
-        margin-bottom: 6px !important;
+        animation: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+        user-select: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+        -webkit-touch-callout: none !important;
       }
       
       .ts-transform-btn:hover:not(:disabled) {
         background: #404040 !important;
+        background-color: #404040 !important;
       }
       
       .ts-transform-btn:disabled {
         background: #b0b0b0 !important;
+        background-color: #b0b0b0 !important;
         cursor: not-allowed !important;
         opacity: 0.6 !important;
+        pointer-events: none !important;
       }
       
-      /* 全て元に戻すボタン */
+      /* 全て元に戻すボタン - 完全に絶対化 */
       .ts-undo-all-btn {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: auto !important;
         width: 100% !important;
-        padding: 6px !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
         background: #666666 !important;
-        color: white !important;
+        background-color: #666666 !important;
+        background-image: none !important;
+        background-repeat: no-repeat !important;
+        background-position: 0% 0% !important;
+        background-size: auto !important;
+        background-attachment: scroll !important;
+        background-clip: border-box !important;
+        background-origin: padding-box !important;
         border: none !important;
         border-radius: 3px !important;
+        margin: 0 !important;
+        padding: 6px !important;
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        font-family: inherit !important;
         font-size: 11px !important;
-        cursor: pointer !important;
-        transition: background-color 0.2s !important;
+        font-weight: normal !important;
+        font-style: normal !important;
+        font-variant: normal !important;
+        font-stretch: normal !important;
+        line-height: 1.3 !important;
+        color: white !important;
         text-align: center !important;
+        text-decoration: none !important;
+        text-transform: none !important;
+        text-shadow: none !important;
+        text-indent: 0 !important;
+        letter-spacing: normal !important;
+        word-spacing: normal !important;
+        white-space: nowrap !important;
+        word-wrap: normal !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        hyphens: none !important;
+        overflow: visible !important;
+        cursor: pointer !important;
+        z-index: 1 !important;
+        box-sizing: border-box !important;
+        outline: none !important;
+        box-shadow: none !important;
+        filter: none !important;
+        transform: none !important;
+        transition: background-color 0.2s !important;
+        animation: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+        user-select: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+        -webkit-touch-callout: none !important;
       }
       
       .ts-undo-all-btn:hover {
         background: #808080 !important;
+        background-color: #808080 !important;
       }
       
       /* エラー表示 */
@@ -347,33 +754,129 @@ function createFloatingPopup() {
         color: #666666 !important;
       }
       
-      /* モードタブ */
+      /* モードタブ - 完全に絶対化 */
       .ts-mode-tabs {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: auto !important;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        margin: 0 0 8px 0 !important;
+        padding: 0 !important;
         display: grid !important;
         grid-template-columns: 1fr 1fr 1fr !important;
+        grid-template-rows: auto !important;
+        grid-template-areas: none !important;
+        grid-auto-columns: auto !important;
+        grid-auto-rows: auto !important;
+        grid-auto-flow: row !important;
         gap: 3px !important;
-        margin-bottom: 8px !important;
+        row-gap: 3px !important;
+        column-gap: 3px !important;
+        justify-items: stretch !important;
+        align-items: stretch !important;
+        justify-content: stretch !important;
+        align-content: stretch !important;
+        overflow: visible !important;
+        z-index: 1 !important;
+        box-sizing: border-box !important;
+        outline: none !important;
+        box-shadow: none !important;
+        filter: none !important;
+        transform: none !important;
+        transition: none !important;
+        animation: none !important;
       }
       
       .ts-mode-tab {
-        padding: 4px 2px !important;
-        border: 1px solid #e0e0e0 !important;
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: auto !important;
+        width: auto !important;
+        min-width: auto !important;
+        max-width: none !important;
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
         background: #ffffff !important;
-        color: #2c2c2c !important;
-        font-size: 10px !important;
-        cursor: pointer !important;
+        background-color: #ffffff !important;
+        background-image: none !important;
+        background-repeat: no-repeat !important;
+        background-position: 0% 0% !important;
+        background-size: auto !important;
+        background-attachment: scroll !important;
+        background-clip: border-box !important;
+        background-origin: padding-box !important;
+        border: 1px solid #e0e0e0 !important;
         border-radius: 2px !important;
-        transition: all 0.2s !important;
-        text-align: center !important;
-        line-height: 1.2 !important;
+        margin: 0 !important;
+        padding: 4px 2px !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        font-family: inherit !important;
+        font-size: 10px !important;
         font-weight: 500 !important;
+        font-style: normal !important;
+        font-variant: normal !important;
+        font-stretch: normal !important;
+        line-height: 1.2 !important;
+        color: #2c2c2c !important;
+        text-align: center !important;
+        text-decoration: none !important;
+        text-transform: none !important;
+        text-shadow: none !important;
+        text-indent: 0 !important;
+        letter-spacing: normal !important;
+        word-spacing: normal !important;
         white-space: nowrap !important;
+        word-wrap: normal !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        hyphens: none !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
+        cursor: pointer !important;
+        z-index: 1 !important;
+        box-sizing: border-box !important;
+        outline: none !important;
+        box-shadow: none !important;
+        filter: none !important;
+        transform: none !important;
+        transition: all 0.2s !important;
+        animation: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+        user-select: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+        -webkit-touch-callout: none !important;
+        grid-column: auto !important;
+        grid-row: auto !important;
+        grid-area: auto !important;
+        justify-self: stretch !important;
+        align-self: stretch !important;
+        place-self: auto !important;
       }
       
       .ts-mode-tab:hover {
         background: #f8f8f8 !important;
+        background-color: #f8f8f8 !important;
         border-color: #c0c0c0 !important;
         transform: translateY(-1px) !important;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
@@ -381,6 +884,7 @@ function createFloatingPopup() {
       
       .ts-mode-tab.ts-active {
         background: #2c2c2c !important;
+        background-color: #2c2c2c !important;
         color: white !important;
         border-color: #2c2c2c !important;
         box-shadow: 0 2px 6px rgba(44, 44, 44, 0.2) !important;
@@ -388,37 +892,120 @@ function createFloatingPopup() {
       
       .ts-mode-tab.ts-empty-state {
         background: #f0f0f0 !important;
+        background-color: #f0f0f0 !important;
         color: #666666 !important;
         border-color: #d0d0d0 !important;
         font-style: italic !important;
       }
       
-      /* 学年レベル選択 */
+      /* 学年レベル選択 - 完全に絶対化 */
       .ts-grade-dropdown {
         position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: auto !important;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        overflow: visible !important;
+        z-index: 1 !important;
+        box-sizing: border-box !important;
+        outline: none !important;
+        box-shadow: none !important;
+        filter: none !important;
+        transform: none !important;
+        transition: none !important;
+        animation: none !important;
       }
       
       .ts-grade-dropdown select {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: auto !important;
         width: 100% !important;
-        padding: 4px 20px 4px 6px !important;
-        border: 1px solid #e0e0e0 !important;
-        border-radius: 2px !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
         background: white !important;
-        font-size: 10px !important;
-        color: #2c2c2c !important;
-        cursor: pointer !important;
-        appearance: none !important;
-        -webkit-appearance: none !important;
-        -moz-appearance: none !important;
+        background-color: white !important;
         background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
         background-repeat: no-repeat !important;
         background-position: right 6px center !important;
         background-size: 12px !important;
+        background-attachment: scroll !important;
+        background-clip: border-box !important;
+        background-origin: padding-box !important;
+        border: 1px solid #e0e0e0 !important;
+        border-radius: 2px !important;
+        margin: 0 !important;
+        padding: 4px 20px 4px 6px !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        font-family: inherit !important;
+        font-size: 10px !important;
+        font-weight: normal !important;
+        font-style: normal !important;
+        font-variant: normal !important;
+        font-stretch: normal !important;
+        line-height: 1.3 !important;
+        color: #2c2c2c !important;
+        text-align: left !important;
+        text-decoration: none !important;
+        text-transform: none !important;
+        text-shadow: none !important;
+        text-indent: 0 !important;
+        letter-spacing: normal !important;
+        word-spacing: normal !important;
+        white-space: normal !important;
+        word-wrap: normal !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        hyphens: none !important;
+        overflow: visible !important;
+        cursor: pointer !important;
+        z-index: 1 !important;
+        box-sizing: border-box !important;
+        outline: none !important;
+        box-shadow: none !important;
+        filter: none !important;
+        transform: none !important;
+        transition: none !important;
+        animation: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+        user-select: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+        -webkit-touch-callout: none !important;
+        resize: none !important;
+        vertical-align: baseline !important;
       }
       
       .ts-grade-dropdown select:focus {
         outline: none !important;
         border-color: #2c2c2c !important;
+        box-shadow: 0 0 0 1px #2c2c2c !important;
       }
       
       /* ヘッダーコントロール */
