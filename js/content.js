@@ -10,6 +10,66 @@ let currentSelectedText = '';
 let currentSelection = null;
 let isProcessing = false;
 
+/**
+ * ページのメタデータを取得
+ */
+function getPageMetadata() {
+  try {
+    const metadata = {
+      title: document.title || '',
+      url: window.location.href || '',
+      domain: window.location.hostname || '',
+      description: '',
+      keywords: '',
+      author: '',
+      language: document.documentElement.lang || 'ja'
+    };
+
+    // meta description
+    const descMeta = document.querySelector('meta[name="description"]');
+    if (descMeta) {
+      metadata.description = descMeta.getAttribute('content') || '';
+    }
+
+    // meta keywords
+    const keywordsMeta = document.querySelector('meta[name="keywords"]');
+    if (keywordsMeta) {
+      metadata.keywords = keywordsMeta.getAttribute('content') || '';
+    }
+
+    // meta author
+    const authorMeta = document.querySelector('meta[name="author"]');
+    if (authorMeta) {
+      metadata.author = authorMeta.getAttribute('content') || '';
+    }
+
+    // Open Graph title (SNS用)
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle && !metadata.title) {
+      metadata.title = ogTitle.getAttribute('content') || '';
+    }
+
+    // Open Graph description
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc && !metadata.description) {
+      metadata.description = ogDesc.getAttribute('content') || '';
+    }
+
+    return metadata;
+  } catch (error) {
+    console.error('ReadEasy.: Error getting page metadata:', error);
+    return {
+      title: document.title || '',
+      url: window.location.href || '',
+      domain: window.location.hostname || '',
+      description: '',
+      keywords: '',
+      author: '',
+      language: 'ja'
+    };
+  }
+}
+
 // 初期化
 function initialize() {
   // マーカー用のスタイルシートを確実に注入
@@ -104,7 +164,7 @@ function setupFloatingUIIntegration() {
 
   // 変換リクエストの処理
   document.addEventListener('ts-transform-request', async (event) => {
-    const { mode, level } = event.detail;
+    const { modes, level } = event.detail;
 
     if (!currentSelectedText) {
       document.dispatchEvent(new CustomEvent('ts-transform-error', {
@@ -114,12 +174,16 @@ function setupFloatingUIIntegration() {
     }
 
     try {
-      // バックグラウンドに変換リクエスト
+      // ページメタデータを取得
+      const pageMetadata = getPageMetadata();
+
+      // バックグラウンドに変換リクエスト（複数モード対応 + メタデータ）
       const response = await chrome.runtime.sendMessage({
         action: 'transform',
         text: currentSelectedText,
-        mode: mode || 'lexicon',
-        level: level || 'junior'
+        modes: modes || ['lexicon'],
+        level: level || 'junior',
+        metadata: pageMetadata
       });
 
       if (!response.success) {
