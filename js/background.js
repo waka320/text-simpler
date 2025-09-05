@@ -213,7 +213,7 @@ function initializeModules() {
 // テキスト変換処理
 // ============================================================================
 
-async function transformSingleText({ text, modes, level, apiKey, temperature, model }) {
+async function transformSingleText({ text, modes, level, apiKey, temperature, model, metadata }) {
   console.log('🔄 テキスト変換開始');
   console.log('📝 入力テキスト:', text.substring(0, 100) + '...');
   console.log('🎯 モード:', modes);
@@ -231,11 +231,12 @@ async function transformSingleText({ text, modes, level, apiKey, temperature, mo
         apiKey,
         temperature,
         model,
+        metadata,
         transformFunction: async (chunkData) => {
           // チャンクごとの処理を直接実行（再帰呼び出しを避ける）
           console.log('📝 チャンク処理実行:', chunkData.text.substring(0, 100) + '...');
 
-          const prompt = generateCompletePrompt(chunkData.text, chunkData.modes, chunkData.level);
+          const prompt = generateCompletePrompt(chunkData.text, chunkData.modes, chunkData.level, chunkData.metadata);
           const response = await modules.geminiClient.generateText(prompt, {
             apiKey: chunkData.apiKey,
             temperature: chunkData.temperature,
@@ -256,7 +257,7 @@ async function transformSingleText({ text, modes, level, apiKey, temperature, mo
 
     // プロンプト生成
     console.log('🛠️ プロンプト生成中...');
-    const prompt = generateCompletePrompt(text, modes, level);
+    const prompt = generateCompletePrompt(text, modes, level, metadata);
     console.log('📋 生成されたプロンプト:', prompt.substring(0, 200) + '...');
 
     // API呼び出し
@@ -330,7 +331,7 @@ async function handleMessage(request, sender, sendResponse) {
 async function handleTransformRequest(request, sendResponse) {
   console.log('📨 変換リクエスト受信:', request);
 
-  const { text, modes, level } = request;
+  const { text, modes, level, metadata } = request;
 
   try {
     console.log('⚙️ 設定読み込み中...');
@@ -350,7 +351,8 @@ async function handleTransformRequest(request, sendResponse) {
       level: level || settings.gradeLevel,
       apiKey: settings.geminiApiKey,
       temperature: settings.temperature,
-      model: settings.model
+      model: settings.model,
+      metadata: metadata
     });
 
     console.log('✅ 変換成功、レスポンス送信');

@@ -636,6 +636,7 @@ function createFloatingPopup() {
           <div class="ts-grade-dropdown">
             <select id="ts-grade-level-select" name="ts-grade-level">
               <option value="none">学年レベル: なし</option>
+              <option value="expert">学年レベル: 専門家</option>
               <option value="university">学年レベル: 大学生</option>
               <option value="senior">学年レベル: 高校生</option>
               <option value="junior" selected>学年レベル: 中学生</option>
