@@ -4,10 +4,6 @@
 
 **Webページの文章をAIで読みやすく変換するChrome拡張機能**
 
-[![Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-ReadEasy.-blue?style=for-the-badge&logo=google-chrome)](https://chrome.google.com/webstore)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue?style=for-the-badge)](LICENSE)
-[![Manifest V3](https://img.shields.io/badge/Manifest-V3-orange?style=for-the-badge)](https://developer.chrome.com/docs/extensions/mv3/)
-
 </div>
 
 ## ✨ 特徴
@@ -79,23 +75,43 @@ ReadEasy.は、Webページ上の文章をAI（Google Gemini）で読みやす�
 - **Vanilla JavaScript** (ES6+)
 - **CSS3** (フローティングUI)
 
-### ファイル構成
+## ❓ よくある質問
 
-```
-read-easy/
-├── manifest.json          # 拡張機能の設定
-├── js/
-│   ├── background.js      # Service Worker
-│   ├── content.js         # コンテンツスクリプト
-│   ├── floatingUI.js      # フローティングUI
-│   ├── geminiClient.js    # Gemini API クライアント
-│   ├── promptEngine.js    # プロンプト生成
-│   ├── textProcessor.js   # テキスト処理
-│   └── options.js         # 設定画面
-├── css/                   # スタイルシート
-├── html/                  # HTML ファイル
-└── icons/                 # アイコン画像
-```
+**Q: Gemini APIのキーはどこから取得できますか？無料で取得できますか？**
+
+A: [Google AI Studio](https://aistudio.google.com/app/apikey) から無料で取得できます。Googleアカウントでログイン後、「Create API Key」をクリックして作成してください。無料枠でも十分にご利用いただけます。
+
+**Q: Geminiのモデルはどれが良いですか？**
+
+A: **Gemini 1.5 Flash** が安定して動作します。文章変換がうまくいかない場合は、設定画面でこのモデルに変更してください。
+
+**Q: 変換を元に戻したらページのレイアウトが崩れてしまいました**
+
+A: ページを再リロードしてください。まれにレイアウトが崩れる場合がありますが、リロードで解決します。
+
+**Q: アプリの動作が変です**
+
+A: 以下の手順を試してください：
+
+1. ページをリロード
+2. 拡張機能をリロード（拡張機能管理画面で「更新」ボタンをクリック）
+3. ブラウザを再起動
+
+**Q: 変換が実行されません**
+
+A: 以下を確認してください：
+
+- APIキーが正しく設定されているか
+- インターネット接続が正常か
+- 選択したテキストが5文字以上か
+
+**Q: 変換結果が期待通りではありません**
+
+A: 以下の方法を試してください：
+
+- 学年レベルを調整する
+- 変換モードを変更する
+- より短いテキストで試す
 
 ## 🔒 プライバシー
 
@@ -104,9 +120,9 @@ read-easy/
 - **外部送信**: 変換対象テキストのみGemini APIに送信
 - **追跡**: 一切行いません
 
-詳細は [プライバシーポリシー](PRIVACY_POLICY.md) をご確認ください。
+詳細は [プライバシーポリシー](https://waka320.github.io/read-easy/docs/privacy-policy.html) をご確認ください。
 
-### 開発環境のセットアップ
+## 🛠️ 開発環境のセットアップ
 
 1. リポジトリをクローン
 2. Chrome の拡張機能管理画面で「デベロッパーモード」を有効化
@@ -118,8 +134,9 @@ read-easy/
 
 ## 🙏 謝辞
 
+- [日本財団HUMAIプログラム](https://zen.ac.jp/humai) - 本プロジェクトの開発のきっかけ
 - [Google Gemini API](https://ai.google.dev/) - AI変換エンジン
-- [やさしい日本語ガイドライン](https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000081021.html) - 変換基準
+- [やさしい日本語ガイドライン](https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000081021.html) - 変換基準の参考
 - [Chrome Extensions API](https://developer.chrome.com/docs/extensions/) - 拡張機能基盤
 
 ---

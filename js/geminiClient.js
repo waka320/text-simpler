@@ -9,7 +9,7 @@
 class GeminiClient {
     constructor() {
         this.baseUrl = 'https://generativelanguage.googleapis.com/v1/models';
-        this.defaultModel = 'gemini-2.5-flash';
+        this.defaultModel = 'gemini-1.5-flash';
     }
 
     /**
