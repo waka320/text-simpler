@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "ReadEasy.",
     "version": "1.0.0",
-    "description": "Webページ上の文章を生成AIで変換し、理解容易性・抽象度・学年相当の読みやすさを制御して提示する",
+    "description": "Webページの文章をAIで読みやすく変換。難しい言葉をやさしく、長い文章を要約、論理的な流れを明確にします。学習支援やアクセシビリティ向上に最適。",
     "permissions": [
         "activeTab",
         "storage",

@@ -1,78 +1,131 @@
-### ReadEasy
+<div align="center">
 
-- 製品名: ReadEasy.（Chrome拡張, Manifest V3）
-- 目的: Web上の文章を「語や記号の意味」「情報量の過多」「文章間のつながり」の3因子から診断・変換し、理解容易性・抽象度・学年相当の読みやすさを制御して提示する。
-- 言語と原則: 日本語。出力は常に「やさしい日本語」ガイドラインに準拠（短文化、一文一義、外来語に注意、二重否定回避、必要に応じふりがな/分かち書き）。
+![ReadEasy Banner](docs/read-easy-banner.png)
 
-## 1. 使い方（MVP）
+**Webページの文章をAIで読みやすく変換するChrome拡張機能**
 
-- ポップアップでモードを選ぶ: 語・記号の意味補助／情報量の削減／つながりの補強（＋学年レベル：小/中/高は任意）。
-- ページでテキストを選択し「変換実行」。結果は単独表示（コピー可）。ダブルクリックで原文復元（埋め込み時）。
-- APIキーはオプションで設定（Gemini 2.5系推奨, 同期応答）。
+[![Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-ReadEasy.-blue?style=for-the-badge&logo=google-chrome)](https://chrome.google.com/webstore)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue?style=for-the-badge)](LICENSE)
+[![Manifest V3](https://img.shields.io/badge/Manifest-V3-orange?style=for-the-badge)](https://developer.chrome.com/docs/extensions/mv3/)
 
-## 2. 変換モード（3因子）と編集方針
+</div>
 
-すべてのモードで、事実の追加は禁止。固有名詞・数値・記号・否定・範囲は保持（KEEP）。迷った場合は「不明」と明示。
+## ✨ 特徴
 
-- 語・記号の意味補助（Lexicon/Notation Assist）  
-  目的: 難語・記号・指示語の不明を解消。
-  編集（ADD/KEEP/DEL）:  
-  - ADD: 難語に短い注釈を括弧付与、指示語→具体名、単位・変数・記号の凡例を冒頭で一行まとめ。
-  - KEEP: 固有名詞・数値・記号・不等号・否定・条件の厳格保持。
-  - DEL: 同義冗長・重複定義・不要比喩の削除（意味保持前提）。
+ReadEasy.は、Webページ上の文章をAI（Google Gemini）で読みやすく変換するChrome拡張機能です。学習支援を目的として開発しました。
 
-- 情報量の削減（Load Reduce）  
-  目的: 1文あたりの情報過多を抑え、目的・結論・要旨を先出し。
-  編集:  
-  - ADD: タイトル/見出しから「目的・結論・要旨」を冒頭に短くシグナリングして提示。
-  - KEEP: 主張・数値・制約条件は保持（単位・否定・範囲を厳密維持）。
-  - DEL: 文分割で一文一義、二重否定・冗長句・枝葉の圧縮。
+### 🎯 3つの変換モード
 
-- つながりの補強（Cohesion Boost）  
-  目的: 因果・対比・参照の結束性を補う（話の流れを明示）。
-  編集:  
-  - ADD: 接続詞（つまり/だから/一方で/しかし等）、主語・参照の再掲、前提や未解決点を一文補足。
-  - KEEP: 章立て・論理順序は維持（並び替えは最小限）。
-  - DEL: 指示語依存の曖昧表現を削減し具体名へ置換を優先。
+| モード | 説明 | 例 |
+|--------|------|-----|
+| **言葉をやさしく** | 難しい専門用語や記号に注釈を追加 | `API` → `API（アプリケーション・プログラミング・インターフェース）` |
+| **文を要約** | 長い文章を簡潔に要約し、要点を明確化 | 複雑な段落 → 要点を先頭に配置した簡潔な文章 |
+| **流れを見やすく** | 論理的な接続詞を追加し、文章の流れを改善 | 断片的な文章 → 接続詞で論理的に繋がった文章 |
 
-学年レベル（任意併用）  
+### 📚 学年レベル対応
 
-- 小: 平均文長 ≤ 25字、かな多め、二重否定回避。
-- 中: 平均文長 ≤ 35字、基本語彙＋頻出専門語に簡注。
-- 高: 平均文長 ≤ 45字、論理接続を明確、専門語は最小限。
+- **幼稚園児** から **専門家レベル** まで7段階で調整可能
+- 文の長さや語彙レベルを自動調整
+- やさしい日本語ガイドラインに準拠
 
-## 3. プロンプト（最小実装例）
+## 🚀 使い方
 
-共通方針（各モードのシステムに前置き）  
+### 1. インストール
 
-- 「やさしい日本語」に沿って短文化・一文一義・二重否定回避、外来語に注意。固有名詞・数値・記号・否定・範囲を保持。事実は追加しない。不明は「不明」と書く。
+1. [Chrome Web Store](https://chrome.google.com/webstore) から ReadEasy. をインストール
+2. 拡張機能を有効化
 
-- 語・記号の意味補助（system）  
-  難しい言葉は簡単に言い換え、必要なら直後に短い注釈（括弧）を付ける。指示語は具体名に直す。記号・単位・変数の意味を先頭で一行にまとめる。核情報は保持し、冗長は削る。
-  （user）次の文を語と記号の意味が分かるように直してください。--- {テキスト} ---
+### 2. 初期設定
 
-- 情報量の削減（system）  
-  一文一義で文を分け、不要な重複や二重否定を削除する。タイトル/見出しから目的・結論・要旨を冒頭に短く示し、その後に核心だけを簡潔に述べる。核情報は保持。
-  （user）次の文は情報が多いので、目的→結論→要旨→本文の順に短く並べ替え、文を分割してください。--- {テキスト} ---
+1. [Google AI Studio](https://aistudio.google.com/app/apikey) でGemini APIキーを取得
+2. 拡張機能の設定画面でAPIキーを入力
+3. 使用するモデルを選択（Gemini 1.5 Flash推奨）
 
-- つながりの補強（system）  
-  因果・対比・時間の接続詞を追加し、主語や参照対象を再掲する。必要なら前提や未解決点を一文で補足する。論理の順序は変えない。指示語は具体名に直す。
-  （user）次の文のつながりが分かるように、接続詞を足し、指示語を具体化し、必要なら前提を一文で補ってください。--- {テキスト} ---
+### 3. 使用手順
 
-## 4. UI/操作（MVPに必要な最小）
+1. Webページでテキストを選択
+2. 拡張機能アイコンをクリックしてポップアップを開く
+3. 変換モードと学年レベルを選択
+4. 「変換実行」をクリック
+5. 結果を確認（ダブルクリックで元に戻す）
 
-- ポップアップ: モード（Lexicon/Load/Cohesion）と学年レベル（小/中/高）を選択、「選択テキストを変換」「コピー」。
-- ページ内: 結果を直接埋め込み可能なマーカー（ダブルクリックで復元）。
-- 設定: オプションでAPIキー保存と検証、モデル選択（Gemini 2.5系推奨）。
+## 🎨 スクリーンショット
 
-## 5. 実装ポイント（MVP差分）
+### フローティングポップアップ
 
-- PromptEngineに3モードを追加: 'lexicon' | 'load' | 'cohesion'（既存のsimplify等は内部的にマッピング可）。  
-- 重要語保持チェック（数値・記号・否定・範囲）は簡易差分で確認。二重否定・外来語多用は注意喚起のみ（MVP）。
-- 出力はプレーンテキスト固定。将来はJSONでADD/KEEP/DEL内訳を返す拡張を検討（参考: SARIの編集観点）。
+![Floating Popup](docs/screenshot-popup.png)
 
-参考  
+### 変換結果の例
 
-- 在留支援のためのやさしい日本語ガイドライン（概要・PDF）
-- 三重県「やさしい日本語」ガイドライン（書き方の具体原則）
-- Coh-Metrixの結束性カテゴリ（参照・深層結束・接続詞の役割）
+![Conversion Example](docs/screenshot-conversion.png)
+
+### 設定画面
+
+![Settings Page](docs/screenshot-settings.png)
+
+## 🛠️ 技術仕様
+
+### アーキテクチャ
+
+- **Manifest V3** 対応
+- **Service Worker** ベースのバックグラウンド処理
+- **ES6 モジュール** によるモジュラー設計
+- **Chrome Storage API** による設定管理
+
+### 使用技術
+
+- **Google Gemini API** (2.5 Flash/1.5 Flash/1.5 Pro)
+- **Chrome Extensions API**
+- **Vanilla JavaScript** (ES6+)
+- **CSS3** (フローティングUI)
+
+### ファイル構成
+
+```
+read-easy/
+├── manifest.json          # 拡張機能の設定
+├── js/
+│   ├── background.js      # Service Worker
+│   ├── content.js         # コンテンツスクリプト
+│   ├── floatingUI.js      # フローティングUI
+│   ├── geminiClient.js    # Gemini API クライアント
+│   ├── promptEngine.js    # プロンプト生成
+│   ├── textProcessor.js   # テキスト処理
+│   └── options.js         # 設定画面
+├── css/                   # スタイルシート
+├── html/                  # HTML ファイル
+└── icons/                 # アイコン画像
+```
+
+## 🔒 プライバシー
+
+- **データの収集**: ユーザーの設定と変換対象テキストのみ
+- **データの保存**: すべてローカル（Chrome拡張機能のストレージ）
+- **外部送信**: 変換対象テキストのみGemini APIに送信
+- **追跡**: 一切行いません
+
+詳細は [プライバシーポリシー](PRIVACY_POLICY.md) をご確認ください。
+
+### 開発環境のセットアップ
+
+1. リポジトリをクローン
+2. Chrome の拡張機能管理画面で「デベロッパーモード」を有効化
+3. 「パッケージ化されていない拡張機能を読み込む」でプロジェクトフォルダを選択
+
+## 📄 ライセンス
+
+このプロジェクトは [Apache License 2.0](LICENSE) の下で公開されています。
+
+## 🙏 謝辞
+
+- [Google Gemini API](https://ai.google.dev/) - AI変換エンジン
+- [やさしい日本語ガイドライン](https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000081021.html) - 変換基準
+- [Chrome Extensions API](https://developer.chrome.com/docs/extensions/) - 拡張機能基盤
+
+---
+
+<div align="center">
+
+[⭐ Star this repository](https://github.com/waka320/read-easy) | [📖 View Documentation](docs/) | [🐛 Report Bug](https://github.com/waka320/read-easy/issues)
+
+</div>
