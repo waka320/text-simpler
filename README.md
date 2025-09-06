@@ -28,8 +28,9 @@ ReadEasy.は、Webページ上の文章をAI（Google Gemini）で読みやす�
 
 ### 1. インストール
 
-1. [Chrome Web Store](https://chrome.google.com/webstore) から ReadEasy. をインストール
-2. 拡張機能を有効化
+1. 画面右上にある緑色のボタン[<>Code]をクリックし、表示されるDownload ZIPをクリックしてください
+2. 拡張機能が入ったzipファイルがダウンロードされますから、任意の場所に解凍(展開)してください
+3. それ以降の手順は以下のサイトを参考にしてください: <https://note.com/cute_echium873/n/n997dcf40b3a1>
 
 ### 2. 初期設定
 
@@ -58,22 +59,6 @@ ReadEasy.は、Webページ上の文章をAI（Google Gemini）で読みやす�
 ### 設定画面
 
 ![Settings Page](docs/screenshot-settings.png)
-
-## 🛠️ 技術仕様
-
-### アーキテクチャ
-
-- **Manifest V3** 対応
-- **Service Worker** ベースのバックグラウンド処理
-- **ES6 モジュール** によるモジュラー設計
-- **Chrome Storage API** による設定管理
-
-### 使用技術
-
-- **Google Gemini API** (2.5 Flash/1.5 Flash/1.5 Pro)
-- **Chrome Extensions API**
-- **Vanilla JavaScript** (ES6+)
-- **CSS3** (フローティングUI)
 
 ## ❓ よくある質問
 
@@ -122,15 +107,11 @@ A: 以下の方法を試してください：
 
 詳細は [プライバシーポリシー](https://waka320.github.io/read-easy/docs/privacy-policy.html) をご確認ください。
 
-## 🛠️ 開発環境のセットアップ
+## 🛠️ 技術
 
-1. リポジトリをクローン
-2. Chrome の拡張機能管理画面で「デベロッパーモード」を有効化
-3. 「パッケージ化されていない拡張機能を読み込む」でプロジェクトフォルダを選択
-
-## 📄 ライセンス
-
-このプロジェクトは [Apache License 2.0](LICENSE) の下で公開されています。
+- **Manifest V3**
+- **Chrome Storage API** による設定管理
+- **Google Gemini API** (2.5 Flash/1.5 Flash(推奨)/1.5 Pro)
 
 ## 🙏 謝辞
 
@@ -143,6 +124,6 @@ A: 以下の方法を試してください：
 
 <div align="center">
 
-[⭐ Star this repository](https://github.com/waka320/read-easy) | [📖 View Documentation](docs/) | [🐛 Report Bug](https://github.com/waka320/read-easy/issues)
+[⭐ Star this repository](https://github.com/waka320/read-easy) | [wakaport.com](https://wakaport.com)
 
 </div>
